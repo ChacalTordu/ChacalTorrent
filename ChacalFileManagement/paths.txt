@@ -1,0 +1,2 @@
+source_folder = '/mnt/c/Users/lle-brun/Documents/LEOLEBRUN/PROJETS/scrypt_RangermentAutoDossier/test/notDone'
+destination_folder = '/mnt/c/Users/lle-brun/Documents/LEOLEBRUN/PROJETS/scrypt_RangermentAutoDossier/test/Done'
