@@ -12,6 +12,7 @@
   import ZoneDropFile from "./components/ZoneDropFile.vue"
   import ZoneFileInfo from "./components/ZoneFileInfos.vue"
   import ButtonConfirm from "./components/button/ButtonConfirm.vue"
+  import axios from 'axios'
   import { ref } from 'vue'
 
   const confirmClick = ref(false)
@@ -31,36 +32,32 @@
   }
 
   async function confirmData() {
-    // // Vérification si toutes les données sont valides
-    // if (dataValid.value && torrentValid.value) {
-    //   try {
-    //     const jsonData = {
-    //       mediaType: mediaType.value,
-    //       multipleSeason: mediaMultipleSeason.value,
-    //       alreadyExist: mediaAlreadyExist.value,
-    //       NameMedia : pathMedia.value
-    //     };
+    try {
+        const jsonData = {
+            mediaType: mediaType.value,
+            multipleSeason: mediaMultipleSeason.value,
+            alreadyExist: mediaAlreadyExist.value,
+            NameMedia: pathMedia.value
+        };
 
-    //     // Envoi des données au serveur
-    //     axios.post('http://localhost:3000/upload', jsonData)
-    //     .then(response => {
-    //       console.log('Fichier téléchargé avec succès sur le serveur !');
-    //     })
-    //     .catch(error => {
-    //       console.error('Erreur lors du téléchargement du fichier sur le serveur :', error);
-    //     });
+        // Envoi des données au serveur
+        const response = await axios.post('http://localhost:3000/upload', jsonData);
 
-    //     if (response.ok) {
-    //       console.log("Données envoyées avec succès !");
-    //     } else {
-    //       console.error("Erreur lors de l'envoi des données au serveur :", response.statusText);
-    //     }
-    //   } catch (error) {
-    //     console.error("Une erreur est survenue lors de l'envoi des données au serveur :", error.message);
-    //   }
-    // } else {
-    //   console.log("Il manque le torrent ou des informations sur le média.");
-    // }
+        if (response.status === 200) {
+            console.log('Fichier envoyé avec succès sur le serveur !');
+        } else {
+            console.error("Erreur lors de l'envoi des données au serveur :", response.statusText);
+        }
+    } catch (error) {
+        console.error('Une erreur est survenue :', error.message);
+    }
+
+    // Vérification si toutes les données sont valides
+    if (dataValid.value && torrentValid.value) {
+        console.log("Données valides !");
+    } else {
+        console.log("Il manque le torrent ou des informations sur le média.");
+    }
   }
 
   function saveDataLessMediaInfos(saveMediaType, savePathMedia) {

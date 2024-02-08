@@ -15,10 +15,10 @@
 </template>
 
 <script setup>
-import ButtonSelectFile from './button/ButtonSelectFile.vue';
+import ButtonSelectFile from './button/ButtonSelectFile.vue'
 import ButtonAbort from './button/ButtonAbort.vue'
-import { ref, watch } from "vue";
-import axios from 'axios';
+import { ref, watch } from "vue"
+import axios from 'axios'
 
 const active = ref(false);
 const acceptedFormat = '.torrent';
