@@ -17,11 +17,10 @@
 <script setup>
 import ButtonSelectFile from './button/ButtonSelectFile.vue'
 import ButtonAbort from './button/ButtonAbort.vue'
-import { ref, watch } from "vue"
+import { ref, defineProps, defineEmits, watch } from 'vue'
 import axios from 'axios'
 
 const active = ref(false);
-const acceptedFormat = '.torrent';
 const hasFile = ref(false);
 const fileName = ref('')
 const props = defineProps({
@@ -44,30 +43,30 @@ const handleDrop = (event) => {
   active.value = false
   const files = event.dataTransfer.files
   if (checkFileFormat(files[0])) {
-    alert(`Please select a ${acceptedFormat} file.`)
+    alert(`Veuillez sélectionner un fichier ${acceptedFormat}.`)
   } else {
-    uploadFile(files[0])
+    handleFileSelected(files[0]);
   }
 };
 
 const handleFileSelected = (file) => {
   hasFile.value = true
   fileName.value = file.name
-  emits('fileChosen')
+  emits('fileChosen', file)
   uploadFile(file)
 };
 
 const checkFileFormat = (file) => {
-  return file.type === acceptedFormat
+  return file.type !== acceptedFormat
 };
 
 const handleAbort = () => {
   try {
     hasFile.value = false
     fileName.value = ''
-    console.log("File aborted successfully")
+    console.log("Fichier annulé avec succès")
   } catch (error) {
-    console.error("An error occurred:", error);
+    console.error("Une erreur est survenue:", error);
   }
 };
 

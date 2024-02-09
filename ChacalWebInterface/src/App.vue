@@ -2,87 +2,94 @@
   <div class="myApp">
     <div class="twoZone">
       <ZoneDropFile :confirmClicked="confirmClick" @fileChosen="saveTorrent" @resetButton="resetButtonValue"/>
-      <ZoneFileInfo :confirmClicked="confirmClick" @saveMediaData="saveDataMediaInfos" @saveMediaLessData='saveDataLessMediaInfos' @resetButton="resetButtonValue"/>
+      <ZoneFileInfo :confirmClicked="confirmClick" @saveMediaData="saveMediaInfo"  @resetButton="resetButtonValue"/>
     </div>
-    <ButtonConfirm textButton="Confirmez" @confirmClicked="handleConfirmClicked" />
+    <ButtonConfirm textButton="Télécharger" @confirmClicked="handleConfirmClicked" />
   </div>
 </template>
 
 <script setup>
-  import ZoneDropFile from "./components/ZoneDropFile.vue"
-  import ZoneFileInfo from "./components/ZoneFileInfos.vue"
-  import ButtonConfirm from "./components/button/ButtonConfirm.vue"
-  import axios from 'axios'
-  import { ref } from 'vue'
+  import ZoneDropFile from "./components/ZoneDropFile.vue";
+  import ZoneFileInfo from "./components/ZoneFileInfos.vue";
+  import ButtonConfirm from "./components/button/ButtonConfirm.vue";
+  import axios from 'axios';
+  import { ref } from 'vue';
 
-  const confirmClick = ref(false)
-  const dataValid = ref(false)
-  const torrentValid = ref(false)
-  const mediaType = ref('')
-  const mediaMultipleSeason = ref(false)
-  const mediaAlreadyExist = ref(false)
-  const pathMedia = ref('')
+  const dataValid = ref(false);
+  const torrentValid = ref(false);
+  
+  const confirmClick = ref(false);
 
+  const mediaType = ref('');
+  const mediaMultipleSeason = ref(false);
+  const mediaAlreadyExist = ref(false);
+  const pathMedia = ref('');
+  
   function handleConfirmClicked() {
-    confirmClick.value = true
-  }
-
-  function resetButtonValue() {
-    confirmClick.value = false
-  }
-
-  async function confirmData() {
-    try {
-        const jsonData = {
-            mediaType: mediaType.value,
-            multipleSeason: mediaMultipleSeason.value,
-            alreadyExist: mediaAlreadyExist.value,
-            NameMedia: pathMedia.value
-        };
-
-        // Envoi des données au serveur
-        const response = await axios.post('http://localhost:3000/upload', jsonData);
-
-        if (response.status === 200) {
-            console.log('Fichier envoyé avec succès sur le serveur !');
-        } else {
-            console.error("Erreur lors de l'envoi des données au serveur :", response.statusText);
-        }
-    } catch (error) {
-        console.error('Une erreur est survenue :', error.message);
-    }
-
-    // Vérification si toutes les données sont valides
+    confirmClick.value = true;
     if (dataValid.value && torrentValid.value) {
-        console.log("Données valides !");
-    } else {
-        console.log("Il manque le torrent ou des informations sur le média.");
+      sendDataToServer();
+    }
+  }
+  
+  function resetButtonValue() {
+    confirmClick.value = false;
+  }
+  
+  async function sendDataToServer() {
+    try {
+      if (dataValid.value) {
+        console.log('Données FormData construites :');
+        console.log('mediaType:', mediaType.value);
+        console.log('multipleSeason:', mediaMultipleSeason.value);
+        console.log('alreadyExist:', mediaAlreadyExist.value);
+        console.log('NameMedia:', pathMedia);
+
+        var mediaInfos = 
+        {
+          "mediaType" : mediaType,
+          "boolMediaMultipleSeason" : mediaMultipleSeason.value,
+          "boolAlreadyExist" : mediaAlreadyExist.value,
+          "NameMedia" : pathMedia,
+        }
+        var jsonMediaInfos = JSON.stringify(mediaInfos)
+      }
+      axios.post('http://localhost:3000/upload', jsonMediaInfos)
+        .then(response => {
+          console.log('Fichier téléchargé avec succès sur le serveur !');
+        })
+        .catch(error => {
+          console.error('Erreur lors du téléchargement du fichier sur le serveur :', error);
+        });
+    } catch (error) {
+      console.error('Une erreur est survenue :', error.message);
     }
   }
 
-  function saveDataLessMediaInfos(saveMediaType, savePathMedia) {
-    mediaType.value = saveMediaType.value
-    pathMedia.value = savePathMedia.value
-    dataValid.value = true
-    console.log("Voici toutes les infos", saveMediaType.value, savePathMedia.value)
-    confirmData()
-  }
+  function saveMediaInfo(saveMediaType, savePathMedia, saveCheckbox1 = false, saveCheckbox2 = false) {
+    try {
+        mediaType.value = saveMediaType.value;
+        mediaMultipleSeason.value = saveCheckbox1.value;
+        mediaAlreadyExist.value  = saveCheckbox2.value;
+        pathMedia.value = savePathMedia.value;
 
-  function saveDataMediaInfos(saveMediaType, saveCheckbox1, saveCheckbox2, savePathMedia) {
-    mediaType.value = saveMediaType.value
-    mediaMultipleSeason.value = saveCheckbox1
-    mediaAlreadyExist.value = saveCheckbox2
-    pathMedia.value = savePathMedia.value
-    console.log("Voici toutes les infos :", saveMediaType.value, saveCheckbox1, saveCheckbox2, savePathMedia.value)
-    dataValid.value = true
-    confirmData()
-  }
+        // Afficher les valeurs
+        console.log("mediaType:", mediaType.value);
+        console.log("mediaMultipleSeason:", mediaMultipleSeason.value);
+        console.log("mediaAlreadyExist:", mediaAlreadyExist.value);
+        console.log("pathMedia:", pathMedia.value);
 
-  function saveTorrent() {
-    torrentValid.value = true
-    confirmData()
-  }
+        // Mettre à jour le drapeau de validation
+        dataValid.value = true;
+    } catch (error) {
+        console.error('Une erreur est survenue lors de la sauvegarde des données du média:', error.message);
+    }
+}
 
+
+  function saveTorrent(){
+    torrentValid.value = true 
+  }
 </script>
 
 
