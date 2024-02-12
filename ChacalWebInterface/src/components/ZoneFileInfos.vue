@@ -39,12 +39,11 @@
 </template>
 
 <script setup>
-import { ref, watch} from 'vue'
+import { ref, defineProps, defineEmits, watch } from 'vue'
 import CheckboxTrueOrFalse from './checkbox/CheckboxTrueOrFalse.vue'
 
 const selectedMediaType = ref('Nom du média')
 const pathMedia = ref('')
-const seriesOption = ref('')
 const checkbox1 = ref()
 const checkbox2 = ref()
 const isBlinking = ref(false);
@@ -53,7 +52,7 @@ const props = defineProps({
   confirmClicked: Boolean
 });
 
-const emits = defineEmits(['saveMediaData','saveMediaLessData','resetButton'])
+const emits = defineEmits(['saveMediaData','resetButton'])
 
 function blinkdiv() {
     isBlinking.value = true;
@@ -72,30 +71,21 @@ watch(() => props.confirmClicked, () => {
         blinkdiv()
         emits('resetButton')
       }else{
-        emits('saveMediaLessData',selectedMediaType,pathMedia)
+        emits('saveMediaData',selectedMediaType,pathMedia,false,false)
       }
     }else{
       if((checkbox1.value == undefined) || (checkbox2.value == undefined) || (pathMedia.value == '')){
       blinkdiv()
       emits('resetButton')
     }else{
-      emits('saveMediaData',selectedMediaType,checkbox1.value,checkbox2.value,pathMedia)
+      emits('saveMediaData',selectedMediaType,pathMedia,checkbox1.value,checkbox2.value)
+      // console.log ("Checkbox 1 value envoyé apres click:",checkbox1.value)
+      // console.log ("Checkbox 2 value envoyé apres click:",checkbox2.value)
     }
     }
   }
 });
 
-const resetSeriesOption = () => {
-  if (seriesOption.value === 'media_entier') {
-    seriesOption.value = ''
-  }
-};
-
-watch(selectedMediaType, () => {
-  resetSeriesOption()
-});
-
-/* ---------------------------- CHECKBOX ---------------------------- */
 function toggleInputTextVisible(value){
   if (value == "Yes") {
     checkbox2.value = false
@@ -110,6 +100,7 @@ function CheckCheckbox1Value(value){
   } else if (value == "No") {
     checkbox1.value = false
   }
+  // console.log ("chceckbox 1 value :",checkbox1.value )
 }
 
 function toggleCheckbox1(value){
@@ -122,18 +113,14 @@ function CheckCheckbox2Value(value){
   } else if (value == "No") {
     checkbox2.value = false
   }
-  // console.log("value echckbox1",checkbox2.value)
+  // console.log ("chceckbox 2 value :",checkbox2.value )
 }
 
 function toggleCheckbox2(value){
   toggleInputTextVisible(value)
   CheckCheckbox2Value(value)
-  // console.log("les données de la value : ",value)
 }
 
-function getValueMediaInfos(mediaType,serevalSeason,mediaExisting,mediaPathOrName){
-  emits('saveMediaInfos',mediaType,serevalSeason,mediaExisting,mediaPathOrName)
-}
 </script>
 
 <style scoped>
@@ -200,8 +187,5 @@ function getValueMediaInfos(mediaType,serevalSeason,mediaExisting,mediaPathOrNam
     display: flex;
     flex-direction: column;
     align-items: center;
-  }
-  .classMyButton {
-    text-align: center;
   }
 </style>
