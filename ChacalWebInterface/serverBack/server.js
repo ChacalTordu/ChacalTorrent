@@ -3,10 +3,12 @@ const multer = require('multer');
 const fs = require('fs');
 const path = require('path');
 const cors = require('cors');
+const { ref } = require('vue');
 
 // Définir les dossiers de destination
 const uploadDestination = 'uploadsTorrent/';
 const jsonDestination = 'uploadsJSON/';
+let fileName = ''; // Utiliser let au lieu de const car la valeur sera modifiée
 
 const app = express();
 const upload = multer({ dest: uploadDestination });
@@ -34,7 +36,11 @@ app.post('/uploadFile', upload.single('file'), (req, res) => {
     // Déplacer le fichier téléchargé vers le dossier de destination
     fs.renameSync(uploadedFile.path, destinationPath);
 
+    // Récupérer le nom du fichier téléchargé sans l'extension
+    fileName = path.parse(uploadedFile.originalname).name;
+
     res.send('Fichier téléchargé avec succès !');
+
   } catch (error) {
     console.error('Une erreur est survenue lors du téléchargement du fichier :', error.message);
     res.status(500).send('Une erreur est survenue lors du téléchargement du fichier.');
@@ -57,7 +63,7 @@ app.post('/uploadJSON', (req, res) => {
 function writeJSONToFile(jsonData) {
   try {
     // Chemin du fichier JSON à écrire
-    const filePath = path.join(__dirname, jsonDestination, 'data.json');
+    const filePath = path.join(__dirname, jsonDestination, fileName + '.json');
 
     // Convertir les données JSON en chaîne JSON
     const jsonString = JSON.stringify(jsonData, null, 2);
