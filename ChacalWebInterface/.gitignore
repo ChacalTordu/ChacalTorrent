@@ -30,5 +30,5 @@ coverage
 *.tsbuildinfo
 
 torrentFiles/
-serverBack/uploadsJSON
-serverBack/uploadsTorrent
+serverBack/uploadsJSON/*
+serverBack/uploadsTorrent/*
