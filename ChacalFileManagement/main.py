@@ -66,8 +66,8 @@ class MyHandler(FileSystemEventHandler):
         organiser_fichiers(source_folder, destination_folder, type_contenu, titre, sous_dossier)
 
 if __name__ == "__main__":
-    source_folder = '/mnt/c/Users/lle-brun/Documents/LEOLEBRUN/PROJETS/scrypt_RangermentAutoDossier/test/notDone'
-    destination_folder = '/mnt/c/Users/lle-brun/Documents/LEOLEBRUN/PROJETS/scrypt_RangermentAutoDossier/test/Done'
+    source_folder = ''
+    destination_folder = ''
 
     # Surveillance du dossier pour détecter de nouveaux fichiers
     event_handler = MyHandler()
