@@ -40,7 +40,7 @@
     try {
       if (dataValid.value) {
         console.log('Données FormData construites :');
-        console.log('mediaType:', mediaType.value);
+        console.log('mediaType:', mediaType);
         console.log('multipleSeason:', mediaMultipleSeason.value);
         console.log('alreadyExist:', mediaAlreadyExist.value);
         console.log('NameMedia:', pathMedia);
@@ -66,11 +66,11 @@
     }
   }
 
-  function saveMediaInfo(saveMediaType, savePathMedia, saveCheckbox1 = false, saveCheckbox2 = false) {
+  function saveMediaInfo(saveMediaType, savePathMedia, saveCheckbox1, saveCheckbox2) {
     try {
         mediaType.value = saveMediaType.value;
-        mediaMultipleSeason.value = saveCheckbox1.value;
-        mediaAlreadyExist.value  = saveCheckbox2.value;
+        mediaMultipleSeason.value = saveCheckbox1;
+        mediaAlreadyExist.value  = saveCheckbox2;
         pathMedia.value = savePathMedia.value;
 
         // Afficher les valeurs

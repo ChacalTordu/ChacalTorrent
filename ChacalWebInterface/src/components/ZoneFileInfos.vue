@@ -79,11 +79,11 @@ watch(() => props.confirmClicked, () => {
       emits('resetButton')
     }else{
       emits('saveMediaData',selectedMediaType,pathMedia,checkbox1.value,checkbox2.value)
+      // console.log ("Checkbox 1 value envoyé apres click:",checkbox1.value)
+      // console.log ("Checkbox 2 value envoyé apres click:",checkbox2.value)
     }
     }
   }
-  console.log ("Checkbox 1 value envoyé apres click:",checkbox1.value )
-  console.log ("Checkbox 2 value envoyé apres click:",checkbox2.value )
 });
 
 function toggleInputTextVisible(value){
