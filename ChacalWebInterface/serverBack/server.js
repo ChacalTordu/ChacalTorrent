@@ -71,7 +71,7 @@ function writeJSONToFile(jsonData) {
     // Écrire les données JSON dans le fichier
     fs.writeFileSync(filePath, jsonString);
 
-    console.log('Données JSON écrites avec succès dans le fichier:', filePath);
+    // console.log('Données JSON écrites avec succès dans le fichier:', filePath);
   } catch (error) {
     console.error('Une erreur est survenue lors de l\'écriture des données JSON dans le fichier :', error.message);
   }
