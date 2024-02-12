@@ -74,7 +74,7 @@ const uploadFile = (file) => {
   const formData = new FormData();
   formData.append('file', file);
 
-  axios.post('http://localhost:3000/upload', formData)
+  axios.post('http://localhost:3000/uploadFile', formData)
     .then(response => {
       console.log('Fichier téléchargé avec succès sur le serveur !');
     })

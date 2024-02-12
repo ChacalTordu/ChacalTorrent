@@ -39,22 +39,23 @@
   async function sendDataToServer() {
     try {
       if (dataValid.value) {
-        console.log('Données FormData construites :');
-        console.log('mediaType:', mediaType);
-        console.log('multipleSeason:', mediaMultipleSeason.value);
-        console.log('alreadyExist:', mediaAlreadyExist.value);
-        console.log('NameMedia:', pathMedia);
+        // console.log('Données FormData construites :');
+        // console.log('mediaType:', mediaType.value);
+        // console.log('multipleSeason:', mediaMultipleSeason.value);
+        // console.log('alreadyExist:', mediaAlreadyExist.value);
+        // console.log('NameMedia:', pathMedia.value);
 
         var mediaInfos = 
         {
-          "mediaType" : mediaType,
+          "mediaType" : mediaType.value,
           "boolMediaMultipleSeason" : mediaMultipleSeason.value,
           "boolAlreadyExist" : mediaAlreadyExist.value,
-          "NameMedia" : pathMedia,
+          "NameMedia" : pathMedia.value,
         }
         var jsonMediaInfos = JSON.stringify(mediaInfos)
+        console.log('JSON envoyé au serveur :', jsonMediaInfos);
       }
-      axios.post('http://localhost:3000/upload', jsonMediaInfos)
+      axios.post('http://localhost:3000/uploadJSON', jsonMediaInfos)
         .then(response => {
           console.log('Fichier téléchargé avec succès sur le serveur !');
         })
@@ -74,18 +75,18 @@
         pathMedia.value = savePathMedia.value;
 
         // Afficher les valeurs
-        console.log("mediaType:", mediaType.value);
-        console.log("mediaMultipleSeason:", mediaMultipleSeason.value);
-        console.log("mediaAlreadyExist:", mediaAlreadyExist.value);
-        console.log("pathMedia:", pathMedia.value);
+        // console.log("mediaType:", mediaType.value);
+        // console.log("mediaMultipleSeason:", mediaMultipleSeason.value);
+        // console.log("mediaAlreadyExist:", mediaAlreadyExist.value);
+        // console.log("pathMedia:", pathMedia.value);
 
         // Mettre à jour le drapeau de validation
         dataValid.value = true;
+        sendDataToServer()
     } catch (error) {
         console.error('Une erreur est survenue lors de la sauvegarde des données du média:', error.message);
     }
 }
-
 
   function saveTorrent(){
     torrentValid.value = true 
