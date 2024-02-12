@@ -53,11 +53,11 @@
           "NameMedia" : pathMedia.value,
         }
         var jsonMediaInfos = JSON.stringify(mediaInfos)
-        console.log('JSON envoyé au serveur :', jsonMediaInfos);
+        // console.log('JSON envoyé au serveur :', jsonMediaInfos);
       }
       axios.post('http://localhost:3000/uploadJSON', jsonMediaInfos)
         .then(response => {
-          console.log('Fichier téléchargé avec succès sur le serveur !');
+          // console.log('Fichier téléchargé avec succès sur le serveur !');
         })
         .catch(error => {
           console.error('Erreur lors du téléchargement du fichier sur le serveur :', error);
