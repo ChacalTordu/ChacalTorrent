@@ -20,6 +20,8 @@ import ButtonAbort from './button/ButtonAbort.vue'
 import { ref, defineProps, defineEmits, watch } from 'vue'
 import axios from 'axios'
 
+const acceptedFormat = ".torrent";
+
 const active = ref(false);
 const hasFile = ref(false);
 const fileName = ref('')
@@ -39,25 +41,33 @@ const handleDragLeave = () => {
 };
 
 const handleDrop = (event) => {
-  event.preventDefault()
-  active.value = false
-  const files = event.dataTransfer.files
-  if (checkFileFormat(files[0])) {
-    alert(`Veuillez sélectionner un fichier ${acceptedFormat}.`)
+  event.preventDefault();
+  active.value = false;
+  const files = event.dataTransfer.files;
+  if (files.length !== 1) {
+    alert("Veuillez ne déposer qu'un seul fichier.");
+  } else if (checkFileFormat(files[0])) {
+    alert(`Veuillez sélectionner un fichier ${acceptedFormat}.`);
   } else {
     handleFileSelected(files[0]);
   }
 };
 
 const handleFileSelected = (file) => {
-  hasFile.value = true
-  fileName.value = file.name
-  emits('fileChosen', file)
-  uploadFile(file)
+  if (checkFileFormat(file)) {
+    alert(`Veuillez sélectionner un fichier ${acceptedFormat}.`);
+  } else {
+    hasFile.value = true;
+    fileName.value = file.name;
+    emits('fileChosen', file);
+    uploadFile(file);
+  }
 };
 
 const checkFileFormat = (file) => {
-  return file.type !== acceptedFormat
+  const fileExtension = file.name.split('.').pop();
+  const acceptedExtensions = acceptedFormat.split(',');
+  return acceptedExtensions.some(ext => ext.toLowerCase() === fileExtension.toLowerCase());
 };
 
 const handleAbort = () => {
