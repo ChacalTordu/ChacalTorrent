@@ -46,12 +46,13 @@ const handleDrop = (event) => {
   const files = event.dataTransfer.files;
   if (files.length !== 1) {
     alert("Veuillez ne déposer qu'un seul fichier.");
-  } else if (checkFileFormat(files[0])) {
+  } else if (!checkFileFormat(files[0])) {
     alert(`Veuillez sélectionner un fichier ${acceptedFormat}.`);
   } else {
     handleFileSelected(files[0]);
   }
 };
+
 
 const handleFileSelected = (file) => {
   if (checkFileFormat(file)) {
@@ -66,9 +67,9 @@ const handleFileSelected = (file) => {
 
 const checkFileFormat = (file) => {
   const fileExtension = file.name.split('.').pop();
-  const acceptedExtensions = acceptedFormat.split(',');
-  return acceptedExtensions.some(ext => ext.toLowerCase() === fileExtension.toLowerCase());
+  return fileExtension.toLowerCase() === acceptedFormat.toLowerCase();
 };
+
 
 const handleAbort = () => {
   try {
