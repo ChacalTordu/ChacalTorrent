@@ -33,4 +33,9 @@ torrentFiles/
 ChacalWebInterface/serverBack/uploadsJSON/*
 ChacalWebInterface/serverBack/uploadsTorrent/*
 
-config/
+ChacalFileManagement/config/
+
+inputDirTorrentDownloader/*
+outputDirTorrentDownloader/*
+
+ChacalFileManagement/__pycache__/*
