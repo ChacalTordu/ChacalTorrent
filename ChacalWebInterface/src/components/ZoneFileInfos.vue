@@ -30,8 +30,10 @@
         <div class="question">
           <CheckboxTrueOrFalse @checkboxSet="toggleCheckbox1" textCheckbox="Contient plusieurs saison ?"/>
           <CheckboxTrueOrFalse @checkboxSet="toggleCheckbox2" textCheckbox="Média déjà existant ?"/>
-          <input v-if="checkbox2" v-model="pathMedia" placeholder="Entrez le nom du média ici">
-          <input v-if="!checkbox2" v-model="pathMedia" placeholder="Entrez le chemin du média ici (commençant par '/')">
+          <input v-if="!checkbox2" v-model="pathMedia" placeholder="Entrez le nom du média ici">
+          <!-- <input v-if="checkbox2" v-model="pathMedia" placeholder="Entrez le chemin du média ici (commençant par '/')"> -->
+          <input v-if="checkbox2" v-model="pathMedia" placeholder="Recherchez le dossier :" disabled>
+          <p v-if="checkbox2" style="text-align: center; margin-top: 5px; color: #f00;">Fonctionnalité pas encore disponible. Veuillez télécharger le .torrent manuellement et le placer correctement dans le serveur.</p>
         </div>
       </div>
     </div>

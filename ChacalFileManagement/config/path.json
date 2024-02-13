@@ -1,0 +1,10 @@
+{
+    "sourceDirJson": "../ChacalWebInterface/serverBack/uploadsJSON",
+    "sourceDirTorrent": "../ChacalWebInterface/serverBack/uploadsTorrent",
+
+    "inputDirDeluge": "../inputDirTorrentDownloader",
+    "outputDirDeluge": "../outputDirTorrentDownloader",
+
+    "mediaDir": "./"
+  }
+  
