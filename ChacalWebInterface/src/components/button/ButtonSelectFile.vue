@@ -4,10 +4,9 @@
   </template>
   
   <script setup>
-    import { defineProps, defineEmits } from 'vue';
 
     const props = defineProps(['fileFormat']);
-    const emit = defineEmits();
+    const emit = defineEmits(['fileSelected']);
   
     const handleFileSelect = (event) => {
       const files = event.target.files;
@@ -18,6 +17,7 @@
         alert(`Please select a ${props.fileFormat} file.`);
       }
     };
+    
   </script>
   
   <style scoped>
