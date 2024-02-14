@@ -41,7 +41,7 @@
 </template>
 
 <script setup>
-import { ref, defineProps, defineEmits, watch } from 'vue'
+import { ref, watch } from 'vue'
 import CheckboxTrueOrFalse from './checkbox/CheckboxTrueOrFalse.vue'
 
 const selectedMediaType = ref('Nom du média')
@@ -81,8 +81,6 @@ watch(() => props.confirmClicked, () => {
       emits('resetButton')
     }else{
       emits('saveMediaData',selectedMediaType,pathMedia,checkbox1.value,checkbox2.value)
-      // console.log ("Checkbox 1 value envoyé apres click:",checkbox1.value)
-      // console.log ("Checkbox 2 value envoyé apres click:",checkbox2.value)
     }
     }
   }
@@ -102,7 +100,6 @@ function CheckCheckbox1Value(value){
   } else if (value == "No") {
     checkbox1.value = false
   }
-  // console.log ("chceckbox 1 value :",checkbox1.value )
 }
 
 function toggleCheckbox1(value){
@@ -115,7 +112,6 @@ function CheckCheckbox2Value(value){
   } else if (value == "No") {
     checkbox2.value = false
   }
-  // console.log ("chceckbox 2 value :",checkbox2.value )
 }
 
 function toggleCheckbox2(value){

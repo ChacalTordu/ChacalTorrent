@@ -17,6 +17,7 @@
 
   const dataValid = ref(false);
   const torrentValid = ref(false);
+  const fileTorrent = ref(null);
   
   const confirmClick = ref(false);
 
@@ -25,74 +26,75 @@
   const mediaAlreadyExist = ref(false);
   const pathMedia = ref('');
   
-  function handleConfirmClicked() {
-    confirmClick.value = true;
-    if (dataValid.value && torrentValid.value) {
-      sendDataToServer();
-    }
-  }
-  
-  function resetButtonValue() {
-    confirmClick.value = false;
-  }
-  
+  // Envoi le JSON et le fichier torrent au serveur
   async function sendDataToServer() {
     try {
+      // Vérification du flag pour les données JSON
       if (dataValid.value) {
-        // console.log('Données FormData construites :');
-        // console.log('mediaType:', mediaType.value);
-        // console.log('multipleSeason:', mediaMultipleSeason.value);
-        // console.log('alreadyExist:', mediaAlreadyExist.value);
-        // console.log('NameMedia:', pathMedia.value);
-
-        var mediaInfos = 
-        {
-          "mediaType" : mediaType.value,
-          "boolMediaMultipleSeason" : mediaMultipleSeason.value,
-          "boolAlreadyExist" : mediaAlreadyExist.value,
-          "NameMedia" : pathMedia.value,
-        }
-        var jsonMediaInfos = JSON.stringify(mediaInfos)
-        // console.log('JSON envoyé au serveur :', jsonMediaInfos);
+        const mediaInfos = {
+          "mediaType": mediaType.value,
+          "boolMediaMultipleSeason": mediaMultipleSeason.value,
+          "boolAlreadyExist": mediaAlreadyExist.value,
+          "NameMedia": pathMedia.value,
+        };
+        const jsonMediaInfos = JSON.stringify(mediaInfos);
+        await axios.post('http://localhost:3000/uploadJSON', jsonMediaInfos);
+        console.log('Json téléchargé avec succès sur le serveur !');
       }
-      axios.post('http://localhost:3000/uploadJSON', jsonMediaInfos)
-        .then(response => {
-          // console.log('Fichier téléchargé avec succès sur le serveur !');
-        })
-        .catch(error => {
-          console.error('Erreur lors du téléchargement du fichier sur le serveur :', error);
-        });
+
+      // Vérification du flag pour le fichier .torrent
+      if (torrentValid.value && fileTorrent.value) {
+        const formData = new FormData();
+        formData.append('file', fileTorrent.value);
+        await axios.post('http://localhost:3000/uploadFile', formData);
+        console.log('Fichier téléchargé avec succès sur le serveur !');
+      }  
     } catch (error) {
-      console.error('Une erreur est survenue :', error.message);
+      console.error('Une erreur est survenue lors de l\'envoi des données au serveur:', error.message);
+    }
+  }
+
+  function saveTorrent(file) {
+    try {
+      fileTorrent.value = file;
+      // Flag à vrai
+      torrentValid.value = true;
+      console.log("Torrent sauvegardé correctement")
+    } catch(error) {
+      console.error('Erreur lors de la sauvegarde des données du fichier .torrent:', error.message);
     }
   }
 
   function saveMediaInfo(saveMediaType, savePathMedia, saveCheckbox1, saveCheckbox2) {
     try {
-        mediaType.value = saveMediaType.value;
-        mediaMultipleSeason.value = saveCheckbox1;
-        mediaAlreadyExist.value  = saveCheckbox2;
-        pathMedia.value = savePathMedia.value;
-
-        // Afficher les valeurs
-        // console.log("mediaType:", mediaType.value);
-        // console.log("mediaMultipleSeason:", mediaMultipleSeason.value);
-        // console.log("mediaAlreadyExist:", mediaAlreadyExist.value);
-        // console.log("pathMedia:", pathMedia.value);
-
-        // Mettre à jour le drapeau de validation
-        dataValid.value = true;
-        sendDataToServer()
+      mediaType.value = saveMediaType.value;
+      mediaMultipleSeason.value = saveCheckbox1;
+      mediaAlreadyExist.value = saveCheckbox2;
+      pathMedia.value = savePathMedia.value;
+      // Flag à vrai
+      dataValid.value = true;
     } catch (error) {
-        console.error('Une erreur est survenue lors de la sauvegarde des données du média:', error.message);
+      console.error('Erreur lors de la sauvegarde des données du média (json):', error.message);
     }
-}
+  }
 
-  function saveTorrent(){
-    torrentValid.value = true 
+  function handleConfirmClicked() {
+    try {
+      confirmClick.value = true;
+      if (dataValid.value && torrentValid.value) {
+        sendDataToServer();
+      }else{
+        console.log("Un des deux flags est à faux :\njson flag value : ${dataValid.value}\ntorrent flag value : ${torrentValid.value}")
+      }
+    } catch (error) {
+      console.error('Une erreur est survenue lors du traitement du clic sur le bouton :', error.message);
+    }
+  }
+
+  function resetButtonValue() {
+    confirmClick.value = false;
   }
 </script>
-
 
 <style scoped>
 .myApp {

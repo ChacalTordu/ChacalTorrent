@@ -8,7 +8,6 @@
 
    const handleClick = () => {
     emits('confirmClicked')
-    // console.log("evenemet envoyé boutton")
   };
 </script>
   
