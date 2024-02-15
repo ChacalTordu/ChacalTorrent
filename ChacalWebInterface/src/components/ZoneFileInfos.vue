@@ -55,10 +55,6 @@ const pathMedia = ref('')
 const checkbox1 = ref()
 const checkbox2 = ref()
 
-const props = defineProps({
-  confirmClicked: Boolean
-});
-
 const emits = defineEmits(['saveMediaData','resetButton','abortClicked'])
 
 function handleConfirmClicked() {

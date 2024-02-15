@@ -24,9 +24,6 @@
   const active = ref(false);
   const hasFile = ref(false);
   const fileName = ref('')
-  const props = defineProps({
-    confirmClicked: Boolean
-  });
   
   const emits = defineEmits(['resetButton','fileChosen','abordClicked']) 
 
