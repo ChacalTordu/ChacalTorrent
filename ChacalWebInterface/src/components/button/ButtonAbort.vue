@@ -17,7 +17,10 @@ const abort = () => {
   
 <style scoped>
 .myButton {
-    margin-top: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 150px;
     padding: 10px 20px;
     font-size: 16px;
     background-color: var(--red-color-4);

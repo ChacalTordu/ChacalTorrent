@@ -4,7 +4,7 @@
     @dragleave.prevent="handleDragLeave"
     @dragover.prevent
     @drop.prevent="handleDrop"
-    :class="{ 'activeDropzone': active , 'hasFile': hasFile, 'blink': isBlinking}"
+    :class="{'activeDropzone': active , 'hasFile': hasFile}"
     class="dropzone">
     <span v-if="!hasFile">Drag or Drop File</span>
     <span v-if="!hasFile">OR</span>
@@ -15,92 +15,79 @@
 </template>
 
 <script setup>
-import ButtonSelectFile from './button/ButtonSelectFile.vue'
-import ButtonAbort from './button/ButtonAbort.vue'
-import { ref, defineProps, defineEmits, watch } from 'vue'
-import axios from 'axios'
+  import ButtonSelectFile from './button/ButtonSelectFile.vue'
+  import ButtonAbort from './button/ButtonAbort.vue'
+  import {ref} from 'vue'
 
-const active = ref(false);
-const hasFile = ref(false);
-const fileName = ref('')
-const props = defineProps({
-  confirmClicked: Boolean
-});
-const isBlinking = ref(false);
-const emits = defineEmits(['resetButton','fileChosen']) 
+  const acceptedFormat = ".torrent";
 
-const handleDragEnter = (event) => {
-  event.preventDefault();
-  active.value = true;
-};
+  const active = ref(false);
+  const hasFile = ref(false);
+  const fileName = ref('')
+  const props = defineProps({
+    confirmClicked: Boolean
+  });
+  
+  const emits = defineEmits(['resetButton','fileChosen','resetFlagTorrentValid']) 
 
-const handleDragLeave = () => {
-  active.value = false;
-};
+  const handleDragEnter = (event) => {
+    event.preventDefault();
+    active.value = true;
+  };
 
-const handleDrop = (event) => {
-  event.preventDefault()
-  active.value = false
-  const files = event.dataTransfer.files
-  if (checkFileFormat(files[0])) {
-    alert(`Veuillez sélectionner un fichier ${acceptedFormat}.`)
-  } else {
-    handleFileSelected(files[0]);
-  }
-};
+  const handleDragLeave = () => {
+    active.value = false;
+  };
 
-const handleFileSelected = (file) => {
-  hasFile.value = true
-  fileName.value = file.name
-  emits('fileChosen', file)
-  uploadFile(file)
-};
-
-const checkFileFormat = (file) => {
-  return file.type !== acceptedFormat
-};
-
-const handleAbort = () => {
-  try {
-    hasFile.value = false
-    fileName.value = ''
-    console.log("Fichier annulé avec succès")
-  } catch (error) {
-    console.error("Une erreur est survenue:", error);
-  }
-};
-
-const uploadFile = (file) => {
-  const formData = new FormData();
-  formData.append('file', file);
-
-  axios.post('http://localhost:3000/uploadFile', formData)
-    .then(response => {
-      console.log('Fichier téléchargé avec succès sur le serveur !');
-    })
-    .catch(error => {
-      console.error('Erreur lors du téléchargement du fichier sur le serveur :', error);
-    });
-}
-
-function blinkdiv() {
-  isBlinking.value = true;
-  const durations = [200, 400, 600, 800, 1000];
-  for (let i = 0; i < durations.length; i++) {
-    setTimeout(() => {
-      isBlinking.value = !isBlinking.value;
-    }, durations[i]);
-  }
-}
-
-watch(() => props.confirmClicked, () => {
-  if (props.confirmClicked == true) {
-    if(hasFile.value == false){
-      blinkdiv()
-      emits('resetButton')
+  const handleDrop = (event) => {
+    event.preventDefault();
+    active.value = false;
+    const files = event.dataTransfer.files;
+    if (files.length !== 1) {
+      alert("Veuillez ne déposer qu'un seul fichier.");
+    } else if (!checkFileFormat(files[0])) {
+      alert(`Veuillez sélectionner un fichier ${acceptedFormat}.`);
+    } else {
+      handleFileSelected(files[0]);
     }
-  }
-});
+  };
+
+  const handleFileSelected = (file) => {
+    if (checkFileFormat(file)) {
+      alert(`Veuillez sélectionner un fichier ${acceptedFormat}.`);
+    } else {
+      hasFile.value = true;
+      fileName.value = file.name;
+      emits('fileChosen', file);
+    }
+  };
+
+  const checkFileFormat = (file) => {
+    const fileExtension = file.name.split('.').pop();
+    return fileExtension.toLowerCase() === acceptedFormat.toLowerCase();
+  };
+
+
+  const handleAbort = () => {
+    try {
+      hasFile.value = false
+      fileName.value = ''
+      emits('resetFlagTorrentValid')
+      console.log("Fichier annulé avec succès")
+    } catch (error) {
+      console.error("Une erreur est survenue:", error);
+    }
+  };
+
+  // watch(() => props.confirmClicked, () => {
+  //   if (props.confirmClicked == true) {
+  //     if(hasFile.value == false){
+  //       blinkdiv()
+  //       emits('resetButton')
+  //     }
+  //   }
+  // });
+
 </script>
 
 <style scoped>
