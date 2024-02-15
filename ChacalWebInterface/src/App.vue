@@ -4,7 +4,12 @@
       <ZoneDropFile :class="{ 'blink': isBlinking && !torrentValid }" :confirmClicked="confirmClick" @fileChosen="saveTorrent" @resetButton="resetButtonValue"/>
       <ZoneFileInfo :class="{ 'blink': isBlinking && !dataValid }" :confirmClicked="confirmClick" @saveMediaData="saveMediaInfo"  @resetButton="resetButtonValue"/>
     </div>
-    <ButtonConfirm textButton="Télécharger" @confirmClicked="handleConfirmClicked" />
+    <div class="buttonAndSpinner">
+      <ButtonConfirm v-if="!downloadingFlag" textButton="Télécharger" @confirmClicked="handleConfirmClicked" />
+      <Spinner v-if="downloadingFlag"/>
+      <Sucess />
+      <Error />
+    </div>
   </div>
 </template>
 
@@ -12,8 +17,14 @@
   import ZoneDropFile from "./components/ZoneDropFile.vue";
   import ZoneFileInfo from "./components/ZoneFileInfos.vue";
   import ButtonConfirm from "./components/button/ButtonConfirm.vue";
+  import Spinner from "./components/animation/Spinner.vue"
+  import Sucess from "./components/animation/Sucess.vue"
+  import Error from "./components/animation/Error.vue"
+
   import axios from 'axios';
   import { ref } from 'vue';
+
+  const downloadingFlag = ref(false)
 
   const isBlinking = ref(false);
 
@@ -43,14 +54,14 @@
         await axios.post('http://localhost:3000/uploadJSON', jsonMediaInfos);
         console.log('Json téléchargé avec succès sur le serveur !');
       }
-
       // Vérification du flag pour le fichier .torrent
       if (torrentValid.value && fileTorrent.value) {
         const formData = new FormData();
         formData.append('file', fileTorrent.value);
         await axios.post('http://localhost:3000/uploadFile', formData);
         console.log('Fichier téléchargé avec succès sur le serveur !');
-      }  
+      }
+      return true  
     } catch (error) {
       console.error('Une erreur est survenue lors de l\'envoi des données au serveur:', error.message);
     }
@@ -84,7 +95,9 @@
     try {
       confirmClick.value = true;
       if (dataValid.value && torrentValid.value) {
-        sendDataToServer();
+        if(sendDataToServer()){
+          downloadingFlag.value = true
+        }
       }else{
         if (!dataValid.value) {
           blinkdiv();
@@ -130,5 +143,11 @@
 
 .blink {
     outline: 2px solid var(--red-color-4); 
+  }
+  .buttonAndSpinner{
+    display: flex;
+    flex-direction: row;
+
+    align-items: center;
   }
 </style>
