@@ -28,7 +28,7 @@
     confirmClicked: Boolean
   });
   
-  const emits = defineEmits(['resetButton','fileChosen','resetFlagTorrentValid']) 
+  const emits = defineEmits(['resetButton','fileChosen','abordClicked']) 
 
   const handleDragEnter = (event) => {
     event.preventDefault();
@@ -72,21 +72,12 @@
     try {
       hasFile.value = false
       fileName.value = ''
-      emits('resetFlagTorrentValid')
+      emits('abordClicked')
       console.log("Fichier annulé avec succès")
     } catch (error) {
       console.error("Une erreur est survenue:", error);
     }
   };
-
-  // watch(() => props.confirmClicked, () => {
-  //   if (props.confirmClicked == true) {
-  //     if(hasFile.value == false){
-  //       blinkdiv()
-  //       emits('resetButton')
-  //     }
-  //   }
-  // });
 
 </script>
 

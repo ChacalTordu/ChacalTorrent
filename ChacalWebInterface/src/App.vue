@@ -1,7 +1,7 @@
 <template>
   <div class="myApp">
     <div class="twoZone">
-      <ZoneDropFile :class="{ 'blink': isBlinking && !torrentValid }" :confirmClicked="confirmClick" @fileChosen="saveTorrent" @resetButton="resetButtonValue" @resetFlagTorrentValid="resetTorrentFlag"/>
+      <ZoneDropFile :class="{ 'blink': isBlinking && !torrentValid }" :confirmClicked="confirmClick" @fileChosen="saveTorrent" @resetButton="resetButtonValue" @abordClicked="handleAbortZoneDropClicked"/>
       <ZoneFileInfo :class="{ 'blink': isBlinking && !dataValid }" :confirmClicked="confirmClick" @saveMediaData="saveMediaInfo"  @resetButton="resetButtonValue" @resetInfoFlag="resetDataFlag"/>
     </div>
     <div class="buttonAndSpinner">
@@ -120,8 +120,24 @@
     }
   }
 
+  function handleAbortZoneDropClicked(){
+    resetTorrentFlag()
+    resetJsonDataValid()
+  }
+
   function resetButtonValue() {
     confirmClick.value = false;
+  }
+
+  function resetJsonDataValid(){
+    // Changer le pathMedia du json par le nouveau nom
+  }
+
+  function resetTorrentFlag(){
+    torrentValid.value = false
+  }
+  function resetDataFlag(){
+    dataValid.value = false
   }
 
   function blinkdiv() {
@@ -132,13 +148,6 @@
         isBlinking.value = !isBlinking.value;
       }, durations[i]);
     }
-  }
-
-  function resetTorrentFlag(){
-    torrentValid.value = false
-  }
-  function resetDataFlag(){
-    dataValid.value = false
   }
 </script>
 
