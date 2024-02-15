@@ -87,9 +87,9 @@
         sendDataToServer();
       }else{
         if (!dataValid.value) {
-          blinkdiv('.ZoneFileInfo');
+          blinkdiv();
         } else if (!torrentValid.value) {
-          blinkdiv('.ZoneDropFile');
+          blinkdiv();
         }
         console.log("Un des deux flags est à faux :\njson flag value :",dataValid.value,"\ntorrent flag value :",torrentValid.value)
       }
