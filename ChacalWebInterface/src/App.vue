@@ -1,8 +1,8 @@
 <template>
   <div class="myApp">
     <div class="twoZone">
-      <ZoneDropFile :confirmClicked="confirmClick" @fileChosen="saveTorrent" @resetButton="resetButtonValue"/>
-      <ZoneFileInfo :confirmClicked="confirmClick" @saveMediaData="saveMediaInfo"  @resetButton="resetButtonValue"/>
+      <ZoneDropFile :class="{ 'blink': isBlinking && !torrentValid }" :confirmClicked="confirmClick" @fileChosen="saveTorrent" @resetButton="resetButtonValue"/>
+      <ZoneFileInfo :class="{ 'blink': isBlinking && !dataValid }" :confirmClicked="confirmClick" @saveMediaData="saveMediaInfo"  @resetButton="resetButtonValue"/>
     </div>
     <ButtonConfirm textButton="Télécharger" @confirmClicked="handleConfirmClicked" />
   </div>
@@ -14,6 +14,8 @@
   import ButtonConfirm from "./components/button/ButtonConfirm.vue";
   import axios from 'axios';
   import { ref } from 'vue';
+
+  const isBlinking = ref(false);
 
   const dataValid = ref(false);
   const torrentValid = ref(false);
@@ -84,7 +86,12 @@
       if (dataValid.value && torrentValid.value) {
         sendDataToServer();
       }else{
-        console.log("Un des deux flags est à faux :\njson flag value : ${dataValid.value}\ntorrent flag value : ${torrentValid.value}")
+        if (!dataValid.value) {
+          blinkdiv('.ZoneFileInfo');
+        } else if (!torrentValid.value) {
+          blinkdiv('.ZoneDropFile');
+        }
+        console.log("Un des deux flags est à faux :\njson flag value :",dataValid.value,"\ntorrent flag value :",torrentValid.value)
       }
     } catch (error) {
       console.error('Une erreur est survenue lors du traitement du clic sur le bouton :', error.message);
@@ -93,6 +100,16 @@
 
   function resetButtonValue() {
     confirmClick.value = false;
+  }
+
+  function blinkdiv() {
+    isBlinking.value = true;
+    const durations = [200, 400, 600, 800, 1000];
+    for (let i = 0; i < durations.length; i++) {
+      setTimeout(() => {
+        isBlinking.value = !isBlinking.value;
+      }, durations[i]);
+    }
   }
 </script>
 
@@ -110,4 +127,8 @@
   align-items: center;
   gap: 30px;
 }
+
+.blink {
+    outline: 2px solid var(--red-color-4); 
+  }
 </style>

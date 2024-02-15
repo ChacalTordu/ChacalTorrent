@@ -13,10 +13,13 @@
   
 <style scoped>
   .myButton {
+    display: flex;
+    justify-content: center;
+    align-items: center;
     width: 150px;
     padding: 10px 20px;
     font-size: 16px;
-    background-color: var(--green2-color-4);
+    background-color: var(--green2-color-3);
     color: #ffffff;
     border: none;
     border-radius: 30px;

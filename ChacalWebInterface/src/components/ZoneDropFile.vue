@@ -4,7 +4,7 @@
     @dragleave.prevent="handleDragLeave"
     @dragover.prevent
     @drop.prevent="handleDrop"
-    :class="{ 'activeDropzone': active , 'hasFile': hasFile, 'blink': isBlinking}"
+    :class="{'activeDropzone': active , 'hasFile': hasFile}"
     class="dropzone">
     <span v-if="!hasFile">Drag or Drop File</span>
     <span v-if="!hasFile">OR</span>
@@ -17,7 +17,7 @@
 <script setup>
   import ButtonSelectFile from './button/ButtonSelectFile.vue'
   import ButtonAbort from './button/ButtonAbort.vue'
-  import { ref, watch } from 'vue'
+  import {ref} from 'vue'
 
   const acceptedFormat = ".torrent";
 
@@ -27,7 +27,7 @@
   const props = defineProps({
     confirmClicked: Boolean
   });
-  const isBlinking = ref(false);
+  
   const emits = defineEmits(['resetButton','fileChosen']) 
 
   const handleDragEnter = (event) => {
@@ -78,24 +78,15 @@
     }
   };
 
-  function blinkdiv() {
-    isBlinking.value = true;
-    const durations = [200, 400, 600, 800, 1000];
-    for (let i = 0; i < durations.length; i++) {
-      setTimeout(() => {
-        isBlinking.value = !isBlinking.value;
-      }, durations[i]);
-    }
-  }
+  // watch(() => props.confirmClicked, () => {
+  //   if (props.confirmClicked == true) {
+  //     if(hasFile.value == false){
+  //       blinkdiv()
+  //       emits('resetButton')
+  //     }
+  //   }
+  // });
 
-  watch(() => props.confirmClicked, () => {
-    if (props.confirmClicked == true) {
-      if(hasFile.value == false){
-        blinkdiv()
-        emits('resetButton')
-      }
-    }
-  });
 </script>
 
 <style scoped>
