@@ -28,7 +28,7 @@
     confirmClicked: Boolean
   });
   
-  const emits = defineEmits(['resetButton','fileChosen']) 
+  const emits = defineEmits(['resetButton','fileChosen','resetFlagTorrentValid']) 
 
   const handleDragEnter = (event) => {
     event.preventDefault();
@@ -72,6 +72,7 @@
     try {
       hasFile.value = false
       fileName.value = ''
+      emits('resetFlagTorrentValid')
       console.log("Fichier annulé avec succès")
     } catch (error) {
       console.error("Une erreur est survenue:", error);

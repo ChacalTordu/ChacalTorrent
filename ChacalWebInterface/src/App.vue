@@ -1,44 +1,47 @@
 <template>
   <div class="myApp">
     <div class="twoZone">
-      <ZoneDropFile :class="{ 'blink': isBlinking && !torrentValid }" :confirmClicked="confirmClick" @fileChosen="saveTorrent" @resetButton="resetButtonValue"/>
-      <ZoneFileInfo :class="{ 'blink': isBlinking && !dataValid }" :confirmClicked="confirmClick" @saveMediaData="saveMediaInfo"  @resetButton="resetButtonValue"/>
+      <ZoneDropFile :class="{ 'blink': isBlinking && !torrentValid }" :confirmClicked="confirmClick" @fileChosen="saveTorrent" @resetButton="resetButtonValue" @resetFlagTorrentValid="resetTorrentFlag"/>
+      <ZoneFileInfo :class="{ 'blink': isBlinking && !dataValid }" :confirmClicked="confirmClick" @saveMediaData="saveMediaInfo"  @resetButton="resetButtonValue" @resetInfoFlag="resetDataFlag"/>
     </div>
     <div class="buttonAndSpinner">
-      <ButtonConfirm v-if="!downloadingFlag" textButton="Télécharger" @confirmClicked="handleConfirmClicked" />
+      <ButtonConfirm :class="{ 'visible': !downloadingFlag, 'noneVisible': downloadingFlag || downloadSuceed || downloadError}" textButton="Télécharger" @confirmClicked="handleConfirmClicked" />
       <Spinner v-if="downloadingFlag"/>
-      <Sucess />
-      <Error />
+      <Sucess :class="{ 'visible': downloadSuceed, 'noneVisible': !downloadSuceed }"/>
+      <Error :class="{ 'visible': downloadError, 'noneVisible': !downloadError }"/>
     </div>
   </div>
 </template>
 
+
 <script setup>
-  import ZoneDropFile from "./components/ZoneDropFile.vue";
-  import ZoneFileInfo from "./components/ZoneFileInfos.vue";
-  import ButtonConfirm from "./components/button/ButtonConfirm.vue";
+  import ZoneDropFile from "./components/ZoneDropFile.vue"
+  import ZoneFileInfo from "./components/ZoneFileInfos.vue"
+  import ButtonConfirm from "./components/button/ButtonConfirm.vue"
   import Spinner from "./components/animation/Spinner.vue"
   import Sucess from "./components/animation/Sucess.vue"
   import Error from "./components/animation/Error.vue"
 
-  import axios from 'axios';
-  import { ref } from 'vue';
+  import axios from 'axios'
+  import { ref } from 'vue'
 
   const downloadingFlag = ref(false)
+  const downloadSuceed = ref(false)
+  const downloadError = ref(false)
 
-  const isBlinking = ref(false);
+  const isBlinking = ref(false)
 
   const dataValid = ref(false);
-  const torrentValid = ref(false);
-  const fileTorrent = ref(null);
+  const torrentValid = ref(false)
+  const fileTorrent = ref(null)
   
-  const confirmClick = ref(false);
+  const confirmClick = ref(false)
 
-  const mediaType = ref('');
-  const mediaMultipleSeason = ref(false);
-  const mediaAlreadyExist = ref(false);
-  const pathMedia = ref('');
-  
+  const mediaType = ref('')
+  const mediaMultipleSeason = ref(false)
+  const mediaAlreadyExist = ref(false)
+  const pathMedia = ref('')
+
   // Envoi le JSON et le fichier torrent au serveur
   async function sendDataToServer() {
     try {
@@ -97,6 +100,12 @@
       if (dataValid.value && torrentValid.value) {
         if(sendDataToServer()){
           downloadingFlag.value = true
+          // For Testing
+          setTimeout(() => {
+            downloadingFlag.value = false
+            downloadSuceed.value = true
+            // downloadError.value = true
+          },2000);
         }
       }else{
         if (!dataValid.value) {
@@ -124,6 +133,13 @@
       }, durations[i]);
     }
   }
+
+  function resetTorrentFlag(){
+    torrentValid.value = false
+  }
+  function resetDataFlag(){
+    dataValid.value = false
+  }
 </script>
 
 <style scoped>
@@ -149,5 +165,8 @@
     flex-direction: row;
 
     align-items: center;
+  }
+  .noneVisible{
+    display: none;
   }
 </style>

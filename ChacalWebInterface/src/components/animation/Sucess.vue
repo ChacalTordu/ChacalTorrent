@@ -11,7 +11,6 @@
 svg {
   width: 40px;
   display: block;
-  margin: 40px auto 0;
 }
 
 .path {

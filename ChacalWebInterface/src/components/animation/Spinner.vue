@@ -10,7 +10,7 @@
 
 /*   background-color : red; */
   border : 5px solid #ccc;
-  border-top-color :var(--green2-color-4);
+  border-top-color :var(--vt-c-text-light-2);
   animation : spin 2s linear infinite;
 }
 
