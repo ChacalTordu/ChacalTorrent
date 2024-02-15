@@ -1,8 +1,8 @@
 <template>
   <div class="myApp">
     <div class="twoZone">
-      <ZoneDropFile :class="{ 'blink': isBlinking && !torrentValid }" :confirmClicked="confirmClick" @fileChosen="saveTorrent" @resetButton="resetButtonValue" @abordClicked="handleAbortZoneDropClicked"/>
-      <ZoneFileInfo :class="{ 'blink': isBlinking && !dataValid }" :confirmClicked="confirmClick" @saveMediaData="saveMediaInfo"  @resetButton="resetButtonValue" @resetInfoFlag="resetDataFlag"/>
+      <ZoneDropFile :class="{ 'blink': isBlinking && !torrentValid }" @fileChosen="saveTorrent" @resetButton="resetButtonValue" @abordClicked="handleAbortZoneDropClicked"/>
+      <ZoneFileInfo :class="{ 'blink': isBlinking && !dataValid }" @saveMediaData="saveMediaInfo"  @resetButton="resetButtonValue" @abortClicked="handleAbortFileInfoClicked"/>
     </div>
     <div class="buttonAndSpinner">
       <ButtonConfirm :class="{ 'visible': !downloadingFlag, 'noneVisible': downloadingFlag || downloadSuceed || downloadError}" textButton="Télécharger" @confirmClicked="handleConfirmClicked" />
@@ -33,7 +33,10 @@
 
   const dataValid = ref(false);
   const torrentValid = ref(false)
+
   const fileTorrent = ref(null)
+  const formData = new FormData();
+  const jsonMediaInfos = ref()
   
   const confirmClick = ref(false)
 
@@ -45,24 +48,15 @@
   // Envoi le JSON et le fichier torrent au serveur
   async function sendDataToServer() {
     try {
-      // Vérification du flag pour les données JSON
-      if (dataValid.value) {
-        const mediaInfos = {
-          "mediaType": mediaType.value,
-          "boolMediaMultipleSeason": mediaMultipleSeason.value,
-          "boolAlreadyExist": mediaAlreadyExist.value,
-          "NameMedia": pathMedia.value,
-        };
-        const jsonMediaInfos = JSON.stringify(mediaInfos);
-        await axios.post('http://localhost:3000/uploadJSON', jsonMediaInfos);
-        console.log('Json téléchargé avec succès sur le serveur !');
-      }
       // Vérification du flag pour le fichier .torrent
-      if (torrentValid.value && fileTorrent.value) {
-        const formData = new FormData();
-        formData.append('file', fileTorrent.value);
+      if (torrentValid.value) {
         await axios.post('http://localhost:3000/uploadFile', formData);
         console.log('Fichier téléchargé avec succès sur le serveur !');
+      }
+      // Vérification du flag pour les données JSON
+      if (dataValid.value) {
+        await axios.post('http://localhost:3000/uploadJSON', jsonMediaInfos);
+        console.log('Json téléchargé avec succès sur le serveur !');
       }
       return true  
     } catch (error) {
@@ -73,6 +67,7 @@
   function saveTorrent(file) {
     try {
       fileTorrent.value = file;
+      formData.set('file', fileTorrent.value);
       // Flag à vrai
       torrentValid.value = true;
       console.log("Torrent sauvegardé correctement")
@@ -87,24 +82,44 @@
       mediaMultipleSeason.value = saveCheckbox1;
       mediaAlreadyExist.value = saveCheckbox2;
       pathMedia.value = savePathMedia.value;
-      // Flag à vrai
-      dataValid.value = true;
+      if (formattingJsonFile()) {
+        dataValid.value = true;
+        console.log("flag data True")
+      }
     } catch (error) {
       console.error('Erreur lors de la sauvegarde des données du média (json):', error.message);
     }
+  }
+
+  function formattingJsonFile() {
+    try{
+      const mediaInfos = {
+          "mediaType": mediaType.value,
+          "boolMediaMultipleSeason": mediaMultipleSeason.value,
+          "boolAlreadyExist": mediaAlreadyExist.value,
+          "NameMedia": pathMedia.value,
+        };
+        jsonMediaInfos.value = JSON.stringify(mediaInfos);
+        return true
+    }catch(error){
+      console.error('Erreur lors de l attribution des données du média (json):', error.message);
+      return false
+    }
+    
   }
 
   function handleConfirmClicked() {
     try {
       confirmClick.value = true;
       if (dataValid.value && torrentValid.value) {
+        formattingJsonFile()
         if(sendDataToServer()){
           downloadingFlag.value = true
           // For Testing
           setTimeout(() => {
             downloadingFlag.value = false
-            downloadSuceed.value = true
-            // downloadError.value = true
+            // downloadSuceed.value = true
+            downloadError.value = true
           },2000);
         }
       }else{
@@ -122,7 +137,11 @@
 
   function handleAbortZoneDropClicked(){
     resetTorrentFlag()
-    resetJsonDataValid()
+    // resetJsonDataValid()
+  }
+
+  function handleAbortFileInfoClicked(){
+    resetDataFlag()
   }
 
   function resetButtonValue() {
@@ -131,6 +150,8 @@
 
   function resetJsonDataValid(){
     // Changer le pathMedia du json par le nouveau nom
+    dataValid.value = false
+    // alert("Veuillez abort les infos, et re-confirmez (dû à un changement de fichier torrent)")
   }
 
   function resetTorrentFlag(){

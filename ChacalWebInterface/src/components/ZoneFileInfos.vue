@@ -59,7 +59,7 @@ const props = defineProps({
   confirmClicked: Boolean
 });
 
-const emits = defineEmits(['saveMediaData','resetButton','resetInfoFlag'])
+const emits = defineEmits(['saveMediaData','resetButton','abortClicked'])
 
 function handleConfirmClicked() {
   if ((selectedMediaType.value === 'Film') || (selectedMediaType.value === 'Dessin animé')) {
@@ -114,7 +114,7 @@ function toggleCheckbox2(value){
 
 function handleAbort() {
   dataValidFlag.value = false
-  emits('resetInfoFlag')
+  emits('abortClicked')
 }
 </script>
 
