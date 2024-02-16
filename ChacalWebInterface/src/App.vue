@@ -36,7 +36,7 @@
 
   const fileTorrent = ref(null)
   const formData = new FormData();
-  const jsonMediaInfos = ref()
+  var jsonMediaInfos
   
   const confirmClick = ref(false)
 
@@ -93,19 +93,19 @@
 
   function formattingJsonFile() {
     try{
-      const mediaInfos = {
+      var mediaInfos = {
           "mediaType": mediaType.value,
           "boolMediaMultipleSeason": mediaMultipleSeason.value,
           "boolAlreadyExist": mediaAlreadyExist.value,
           "NameMedia": pathMedia.value,
         };
-        jsonMediaInfos.value = JSON.stringify(mediaInfos);
+        jsonMediaInfos = JSON.stringify(mediaInfos);
+        console.log("JSON formaté :", jsonMediaInfos);
         return true
     }catch(error){
       console.error('Erreur lors de l attribution des données du média (json):', error.message);
       return false
     }
-    
   }
 
   function handleConfirmClicked() {
