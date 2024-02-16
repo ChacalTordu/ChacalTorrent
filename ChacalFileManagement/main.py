@@ -7,6 +7,7 @@ if __name__ == "__main__":
         # Appeler la fonction de gestion du torrent et du JSON
         #       -> Check la duplication de fichier .json et .torrent
         #       -> Move le fichier .torrent dans le dossier inputDeluge
+        #       -> Detecte le fichier avec le même nom que le torrent dans le dossier outputDirDeluge
         #       -> Move le fichier/dossier télécharger et le met dans un dossier crée
         nameTorrentWithExtension, nameMedia = torrentAndJsonManagement.torrentAndJsonManagementMain()
         
@@ -24,6 +25,8 @@ if __name__ == "__main__":
                 if outputDirDeluge:
                     # print("Elements envoyé nameMedia: ",nameMedia)
                     # Appeler la fonction de tri des fichiers/dossiers
+                    #       -> Détecte le type du média téléchargé
+                    #       -> 
                     fileSorting.fileSortingMain(outputDirDeluge, nameTorrent, nameMedia)
                 else:
                     print("Erreur: Le chemin du répertoire de sortie du déluge n'est pas spécifié dans le fichier JSON.")

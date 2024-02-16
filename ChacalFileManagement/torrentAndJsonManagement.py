@@ -74,17 +74,14 @@ def moveTorrentToDeluge(sourceDirTorrent, fileTorrent, inputDirDeluge):
 def createMediaDirFromJson(mediaDir, jsonFile):
     reformat_json(jsonFile)
     try:
-        # Attendre quelques secondes pour voir si le fichier est disponible
-        time.sleep(1)
-        
+        time.sleep(1) # Attendre quelques secondes pour voir si le fichier est disponible
         with open(jsonFile, 'r', encoding='utf-8') as f:
             data = json.load(f)
             nameMedia = data.get('NameMedia')
             if nameMedia:
                 mediaPath = os.path.join(mediaDir, nameMedia.encode('utf-8').decode('latin1'))
                 os.makedirs(mediaPath, exist_ok=True)
-                # Déplace le json dans le cas où l'utilisateur a besoin du Json dans son fichier téléchargé
-                shutil.move(jsonFile, mediaPath)
+                shutil.move(jsonFile, mediaPath) # Déplace le json dans le cas où l'utilisateur a besoin du Json dans son fichier téléchargé
                 return nameMedia
             else:
                 print("Erreur: 'NameMedia' n'est pas spécifié dans le fichier JSON.")
