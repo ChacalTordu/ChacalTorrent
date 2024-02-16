@@ -8,7 +8,7 @@ const { ref } = require('vue');
 // Définir les dossiers de destination
 const uploadDestination = 'uploadsTorrent/';
 const jsonDestination = 'uploadsJSON/';
-let fileName = '';
+let fileName = ''; // Utiliser let au lieu de const car la valeur sera modifiée
 
 const app = express();
 const upload = multer({ dest: uploadDestination });
