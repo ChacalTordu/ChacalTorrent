@@ -61,6 +61,7 @@
       return true  
     } catch (error) {
       console.error('Une erreur est survenue lors de l\'envoi des données au serveur:', error.message);
+      return false
     }
   }
 
@@ -112,16 +113,14 @@
     try {
       confirmClick.value = true;
       if (dataValid.value && torrentValid.value) {
+        downloadingFlag.value = true // On passe dans un état de téléchargement
         formattingJsonFile()
         if(sendDataToServer()){
-          downloadingFlag.value = true
-          // For Testing
-          setTimeout(() => {
-            downloadingFlag.value = false
-            // downloadSuceed.value = true
-            downloadError.value = true
-          },2000);
+          downloadSuceed.value = true
+        }else{
+          downloadError.value = true
         }
+        downloadingFlag.value = false // Fin du téléchargement
       }else{
         if (!dataValid.value) {
           blinkdiv();
