@@ -12,7 +12,7 @@
       const files = event.target.files;
       if (files.length === 1 && files[0].name.endsWith(props.fileFormat)) {
         emit('fileSelected', files[0]);
-        console.log(`Valid ${props.fileFormat} file:`, files[0]);
+        // console.log(`Valid ${props.fileFormat} file:`, files[0]);
       } else {
         alert(`Please select a ${props.fileFormat} file.`);
       }

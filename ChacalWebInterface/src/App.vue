@@ -71,7 +71,7 @@
       formData.set('file', fileTorrent.value);
       // Flag à vrai
       torrentValid.value = true;
-      console.log("Torrent sauvegardé correctement")
+      // console.log("Torrent sauvegardé correctement")
     } catch(error) {
       console.error('Erreur lors de la sauvegarde des données du fichier .torrent:', error.message);
     }
@@ -85,7 +85,6 @@
       pathMedia.value = savePathMedia.value;
       if (formattingJsonFile()) {
         dataValid.value = true;
-        console.log("flag data True")
       }
     } catch (error) {
       console.error('Erreur lors de la sauvegarde des données du média (json):', error.message);
@@ -101,7 +100,7 @@
           "NameMedia": pathMedia.value,
         };
         jsonMediaInfos = JSON.stringify(mediaInfos);
-        console.log("JSON formaté :", jsonMediaInfos);
+        // console.log("JSON formaté :", jsonMediaInfos);
         return true
     }catch(error){
       console.error('Erreur lors de l attribution des données du média (json):', error.message);
