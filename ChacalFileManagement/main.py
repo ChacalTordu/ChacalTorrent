@@ -1,9 +1,7 @@
 import os
 import json
-import threading
-import queue
 import signal
-import sys
+import multiprocessing
 
 import torrentAndJsonManagement
 import fileSorting
@@ -79,6 +77,10 @@ def sortFiles(pathOutputDirDeluge, pathNewDirMedia, queueJson):
         except Exception as e:
             print(f"Une erreur s'est produite lors du tri des fichiers : {str(e)}")
 
+def signalHandler(sig, frame):
+    print('[INFOS] : Exit ...')
+    os._exit(1)
+
 if __name__ == "__main__":
     try:
         # Charge les chemins configurés dans le fichier path.json dans le dossier config
@@ -89,18 +91,22 @@ if __name__ == "__main__":
             print("[OK] : Chargement des chemins réalisé avec succès")
 
             # Création de la file d'attente partagée
-            queueJson = queue.Queue()
+            queueJson = multiprocessing.Queue()
 
-            # Création et démarrage des threads
-            torrentThread = threading.Thread(target=manageTorrentAndJson, args=(pathSourceDirJson, pathSourceDirTorrent, pathInputDirDeluge, queueJson))
-            sortingThread = threading.Thread(target=sortFiles, args=(pathOutputDirDeluge, pathNewDirMedia, queueJson))
+            # Création des processus
+            torrentProcess = multiprocessing.Process(target=manageTorrentAndJson, args=(pathSourceDirJson, pathSourceDirTorrent, pathInputDirDeluge, queueJson))
+            sortingProcess = multiprocessing.Process(target=sortFiles, args=(pathOutputDirDeluge, pathNewDirMedia, queueJson))
 
-            torrentThread.start()
-            sortingThread.start()
+            # Gestion de l'interruption clavier
+            signal.signal(signal.SIGINT, signalHandler)
 
-            # Attente que les threads se terminent
-            torrentThread.join()
-            sortingThread.join()
+            # Démarrage des processus
+            torrentProcess.start()
+            sortingProcess.start()
+
+            # Attente que les processus se terminent
+            torrentProcess.join()
+            sortingProcess.join()
                 
     except Exception as e:
         print(f"Une erreur s'est produite dans le main.py: {str(e)}")
