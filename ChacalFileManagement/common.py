@@ -1,5 +1,6 @@
 import os
 import json
+import shutil
 
 def reformatJson(file_inputJson):
     """
@@ -43,6 +44,42 @@ def reformatJson(file_inputJson):
     except (ValueError, SyntaxError):
         print("Erreur: Le format du fichier JSON est incorrect.")
 
+def renameDirectory(path_dir):
+    """
+    Rename a directory.
+
+    Args:
+        path_dir (str): The path to the directory to be renamed.
+
+    Returns:
+        str: The new path of the renamed directory.
+    """
+    try:
+        # Obtenez le nom du dossier
+        dir_name = os.path.basename(path_dir)
+        # Obtenez le chemin du fichier JSON
+        file_jsonData = os.path.join(path_dir, f"{dir_name}.json")
+        # Remplacer les barres obliques inverses par des barres obliques normales
+        file_jsonData = os.path.normpath(file_jsonData)
+        new_name = getMediaTypeFromJson(file_jsonData)
+
+        if not new_name:
+            print(f"[ERR]: Cannot rename directory. Metadata not found or invalid in {file_jsonData}")
+            return None
+
+        # Obtenir le chemin du répertoire parent
+        path_parent = os.path.dirname(path_dir)
+        # Construire le nouveau chemin complet avec le nouveau nom
+        path_newDirectory = os.path.join(path_parent, new_name)
+        # Renommer le répertoire
+        os.rename(path_dir, path_newDirectory)
+        print(f"[OK] : Le dossier a été renommé avec succès en '{new_name}'.")
+        return path_newDirectory
+    except Exception as e:
+        print(f"[ERR] Error occurred while renaming directory: {str(e)}")
+        return None
+
+
 def createMediaDirFromJson(path_newMediaDir, file_jsonFile):
     """
     Create a media directory based on information from a JSON file.
@@ -61,17 +98,17 @@ def createMediaDirFromJson(path_newMediaDir, file_jsonFile):
         if nameMedia:
             mediaPath = os.path.join(path_newMediaDir, nameMedia.encode('utf-8').decode('latin1'))
             os.makedirs(mediaPath, exist_ok=True)       # Create the directory
-            # shutil.move(file_jsonFile, mediaPath)     # Move the JSON if needed
+            shutil.move(file_jsonFile, mediaPath)       # Move the JSON in it
             print(f"[OK] : Création du dossier {nameMedia} dans {path_newMediaDir} est réalisé avec succés")
             return None
         else:
-            return None, "Error: 'NameMedia' is not specified in the JSON file."
+            return None, "[ERR] : 'NameMedia' is not specified in the JSON file."
     except PermissionError as e:
-        return None, f"Error: Unable to move or delete the file {file_jsonFile} as it is being used by another process. ({str(e)})"
+        return None, f"[ERR] : Unable to move or delete the file {file_jsonFile} as it is being used by another process. ({str(e)})"
     except FileNotFoundError as e:
-        return None, f"Error: {e.strerror} ({e.filename})"
+        return None, f"[ERR] : {e.strerror} ({e.filename})"
     except json.JSONDecodeError:
-        return None, f"Error: Unable to decode the JSON file {file_jsonFile}."
+        return None, f"[ERR] : Unable to decode the JSON file {file_jsonFile}."
 
 
 def getMediaTypeFromJson(file_jsonData):
@@ -89,7 +126,7 @@ def getMediaTypeFromJson(file_jsonData):
             data = json.load(f)
             return data.get('mediaType')
     except FileNotFoundError:
-        print(f"Error: The file {file_jsonData} does not exist.")
+        print(f"[ERR] : The file {file_jsonData} does not exist.")
         return ""
 
 def getBoolMediaMultipleSeasonFromJson(file_jsonData):
@@ -107,7 +144,7 @@ def getBoolMediaMultipleSeasonFromJson(file_jsonData):
             data = json.load(f)
             return data.get('boolMediaMultipleSeason')
     except FileNotFoundError:
-        print(f"Error: The file {file_jsonData} does not exist.")
+        print(f"[ERR] : The file {file_jsonData} does not exist.")
         return False
 
 def getBoolAlreadyExistFromJson(file_jsonData):
@@ -125,7 +162,7 @@ def getBoolAlreadyExistFromJson(file_jsonData):
             data = json.load(f)
             return data.get('boolAlreadyExist')
     except FileNotFoundError:
-        print(f"Error: The file {file_jsonData} does not exist.")
+        print(f"[ERR] : The file {file_jsonData} does not exist.")
         return False
 
 def getNameMediaFromJson(file_jsonData):
@@ -143,5 +180,5 @@ def getNameMediaFromJson(file_jsonData):
             data = json.load(f)
             return data.get('NameMedia')
     except FileNotFoundError:
-        print(f"Error: The file {file_jsonData} does not exist.")
+        print(f"[ERR] : The file {file_jsonData} does not exist.")
         return ""

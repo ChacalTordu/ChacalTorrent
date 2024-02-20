@@ -33,14 +33,13 @@ def checkMatchingFiles(path_newDirMedia, path_outputDirDeluge, file_listNameFile
             # Vérifier si le nom de base correspond à l'un des noms recherchés
             if baseName in list_nameFileSought:
                 pathSource = os.path.join(root, name)
-                pathTarget = os.path.join(path_newDirMedia, baseName, name)  # Modifier le chemin cible
+                pathTarget = os.path.join(path_newDirMedia, baseName, name) 
                 try:
                     shutil.move(pathSource, pathTarget)
                     print(f"[OK] : {name} déplacé avec succès vers {pathTarget}.")
+                    common.renameDirectory(pathTarget) # Rename folder 
                 except Exception as e:
                     print(f"[ERR] Erreur lors du déplacement de {name} : {str(e)}\n[INFOS] : pathSource = {pathSource}\n[INFOS] : pathTarget = {pathTarget}")
-            # else:
-            #     print(f"Recherche du fichier téléchargé :\n{baseName} n'est pas dans la liste des noms à correspondre.")
 
 def createNewFileSought(path_newDirMedia, file_json):
     """
@@ -53,15 +52,20 @@ def createNewFileSought(path_newDirMedia, file_json):
     Returns:
         str: Le chemin complet du fichier de la liste des fichiers recherchés.
     """
-    common.createMediaDirFromJson(path_newDirMedia, file_json) # Creation of mediaDir
+    common.createMediaDirFromJson(path_newDirMedia, file_json) # Creation of mediaDir w/ json in it
 
     list_nameFileSought_file = os.path.join(path_newDirMedia, "listFileSought")
     nameFileSought = os.path.splitext(os.path.basename(file_json))[0]
 
     try:
         if os.path.exists(list_nameFileSought_file):
-            with open(list_nameFileSought_file, 'a') as f:
-                f.write(nameFileSought + '\n')
+            # Vérifier si le nom est déjà présent dans le fichier
+            with open(list_nameFileSought_file, 'r') as f:
+                existing_names = f.read().splitlines()
+            if nameFileSought not in existing_names:
+                # Si le nom n'est pas déjà présent, l'ajouter
+                with open(list_nameFileSought_file, 'a') as f:
+                    f.write(nameFileSought + '\n')
         else:
             with open(list_nameFileSought_file, 'w') as f:
                 f.write(nameFileSought + '\n')
@@ -71,7 +75,6 @@ def createNewFileSought(path_newDirMedia, file_json):
     except Exception as e:
         return {str(e)}
 
-
 def fileSortingMain(path_outputDirDeluge, path_newDirMedia, file_json):
     """
     Fonction principale pour trier les fichiers.
@@ -79,9 +82,9 @@ def fileSortingMain(path_outputDirDeluge, path_newDirMedia, file_json):
     Coordonne le processus de tri des fichiers en appelant les fonctions auxiliaires.
     """
     try:
-        checkValidateParameter(path_outputDirDeluge, path_newDirMedia, file_json)       # Check parameter
-        file_listNameFileSought = createNewFileSought(path_newDirMedia, file_json)      # Create list of seek nameMedia
-        checkMatchingFiles(path_newDirMedia, path_outputDirDeluge, file_listNameFileSought)               # Check matching newmedia depends on seekNameMedia
+        checkValidateParameter(path_outputDirDeluge, path_newDirMedia, file_json)               # Check parameter
+        file_listNameFileSought = createNewFileSought(path_newDirMedia, file_json)              # Create list of seek nameMedia
+        checkMatchingFiles(path_newDirMedia, path_outputDirDeluge, file_listNameFileSought)     # Check matching newmedia depends on seekNameMedia
     except (ValueError, FileNotFoundError) as e:
         return str(e)
     except Exception as e:
