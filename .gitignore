@@ -39,4 +39,5 @@ inputDirTorrentDownloader/*
 outputDirTorrentDownloader/*
 
 ChacalFileManagement/__pycache__/*
-ChacalFileManagement/mediaDir/*
+ChacalFileManagement/media/
+ChacalFileManagement/config/*
