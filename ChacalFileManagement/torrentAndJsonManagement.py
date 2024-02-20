@@ -21,7 +21,7 @@ def checkDuplicateFiles(sourceDirJson, sourceDirTorrent):
             for fileTorrent in filesTorrent:
                 nameTorrent = os.path.splitext(fileTorrent)[0]  # Retire l'extension .torrent
                 if nameJson == nameTorrent:
-                    print(f"Nouveau Torrent detecté : {nameTorrent}")
+                    print(f"[INFOS] : Nouveau Torrent detecté : {nameTorrent}")
                     return fileTorrent, os.path.join(sourceDirJson, fileJson)  # Renvoie le nom du fichier torrent et le fichier JSON correspondant
         return None, None  # Si aucun fichier en double n'est trouvé
     except FileNotFoundError as e:

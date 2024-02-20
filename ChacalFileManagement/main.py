@@ -75,7 +75,7 @@ def sortFiles(pathOutputDirDeluge, pathNewDirMedia, queueJson):
                 else:
                     print("[OK] : Le tri s'est déroulé avec succès")
         except Exception as e:
-            print(f"Une erreur s'est produite lors du tri des fichiers : {str(e)}")
+            print(f"\n[ERR] : Une erreur s'est produite lors du tri des fichiers : {str(e)}")
 
 def signalHandler(sig, frame):
     print('[INFOS] : Exit ...')

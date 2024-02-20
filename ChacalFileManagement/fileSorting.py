@@ -18,7 +18,7 @@ def checkValidateParameter(path_outputDirDeluge, path_newDirMedia, fileJson):
     if not os.path.exists(path_newDirMedia):
         raise FileNotFoundError(f"Le dossier des nouveaux médias {path_newDirMedia} n'existe pas.")
 
-def checkMatchingFiles(path_outputDirDeluge, file_listNameFileSought):
+def checkMatchingFiles(path_newDirMedia, path_outputDirDeluge, file_listNameFileSought):
     """
     Déplace les fichiers/dossier qui match avec l'un des noms de la file_listNameFileSought vers le dossier média correspondant.
     
@@ -33,15 +33,14 @@ def checkMatchingFiles(path_outputDirDeluge, file_listNameFileSought):
             # Vérifier si le nom de base correspond à l'un des noms recherchés
             if baseName in list_nameFileSought:
                 pathSource = os.path.join(root, name)
-                pathTarget = os.path.join(path_outputDirDeluge, baseName, name)
+                pathTarget = os.path.join(path_newDirMedia, baseName, name)  # Modifier le chemin cible
                 try:
                     shutil.move(pathSource, pathTarget)
                     print(f"[OK] : {name} déplacé avec succès vers {pathTarget}.")
                 except Exception as e:
-                    print(f"[ERR] Erreur lors du déplacement de {name} : {str(e)}\n[INFOS] : pathTarget = {pathTarget}\n[INFOS] : pathSource = {pathSource}")
+                    print(f"[ERR] Erreur lors du déplacement de {name} : {str(e)}\n[INFOS] : pathSource = {pathSource}\n[INFOS] : pathTarget = {pathTarget}")
             # else:
             #     print(f"Recherche du fichier téléchargé :\n{baseName} n'est pas dans la liste des noms à correspondre.")
-
 
 def createNewFileSought(path_newDirMedia, file_json):
     """
@@ -82,7 +81,7 @@ def fileSortingMain(path_outputDirDeluge, path_newDirMedia, file_json):
     try:
         checkValidateParameter(path_outputDirDeluge, path_newDirMedia, file_json)       # Check parameter
         file_listNameFileSought = createNewFileSought(path_newDirMedia, file_json)      # Create list of seek nameMedia
-        checkMatchingFiles(path_outputDirDeluge, file_listNameFileSought)               # Check matching newmedia depends on seekNameMedia
+        checkMatchingFiles(path_newDirMedia, path_outputDirDeluge, file_listNameFileSought)               # Check matching newmedia depends on seekNameMedia
     except (ValueError, FileNotFoundError) as e:
         return str(e)
     except Exception as e:

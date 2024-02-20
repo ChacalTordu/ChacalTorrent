@@ -56,7 +56,8 @@ def createMediaDirFromJson(path_newMediaDir, file_jsonFile):
     """
     try:
         reformatJson(file_jsonFile)
-        nameMedia = getNameMediaFromJson(file_jsonFile)
+        # nameMedia = getNameMediaFromJson(file_jsonFile)
+        nameMedia = os.path.splitext(os.path.basename(file_jsonFile))[0]
         if nameMedia:
             mediaPath = os.path.join(path_newMediaDir, nameMedia.encode('utf-8').decode('latin1'))
             os.makedirs(mediaPath, exist_ok=True)       # Create the directory
