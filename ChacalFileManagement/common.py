@@ -61,6 +61,7 @@ def createMediaDirFromJson(path_newMediaDir, file_jsonFile):
             mediaPath = os.path.join(path_newMediaDir, nameMedia.encode('utf-8').decode('latin1'))
             os.makedirs(mediaPath, exist_ok=True)       # Create the directory
             # shutil.move(file_jsonFile, mediaPath)     # Move the JSON if needed
+            print(f"[OK] : Création du dossier {nameMedia} dans {path_newMediaDir} est réalisé avec succés")
             return None
         else:
             return None, "Error: 'NameMedia' is not specified in the JSON file."

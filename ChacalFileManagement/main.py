@@ -1,10 +1,10 @@
 import os
 import json
 import threading
-import time
 import queue
+import signal
+import sys
 
-import common
 import torrentAndJsonManagement
 import fileSorting
 
@@ -45,33 +45,39 @@ def loadPaths(jsonFile):
         print(f"Une erreur s'est produite lors du chargement des chemins à partir du fichier JSON : {str(e)}")
         return None, None, None, None, None, f"Une erreur s'est produite lors du chargement des chemins à partir du fichier JSON : {str(e)}"
 
-def manageTorrentAndJson(pathSourceDirJson, pathSourceDirTorrent, pathInputDirDeluge, result_queue):
+def manageTorrentAndJson(pathSourceDirJson, pathSourceDirTorrent, pathInputDirDeluge, queueJson):
     """
     Gère les fichiers torrent et JSON.
     """
-    try:
-        fileJson, error = torrentAndJsonManagement.torrentAndJsonManagementMain(pathSourceDirJson, pathSourceDirTorrent, pathInputDirDeluge)
-        if error:
-            print(f"[ERR] : Une erreur s'est produite lors de la gestion du torrent et du JSON : {error}")
-        else:
-            print(f"[OK] : Torrent déplacé vers {pathInputDirDeluge} avec succès")
-            result_queue.put(fileJson)  # Ajouter le fileJson dans la file d'attente
-    except Exception as e:
-        print(f"Une erreur s'est produite lors de la gestion du torrent et du JSON : {str(e)}")
+    while True:
+        try:
+            fileJson, error = torrentAndJsonManagement.torrentAndJsonManagementMain(pathSourceDirJson, pathSourceDirTorrent, pathInputDirDeluge)
+            if error:
+                if error != "No torrent file found.":
+                    print(f"[ERR] : Une erreur s'est produite lors de la gestion du torrent et du JSON : {error}")
+            elif fileJson is not None:  # Si fileJson est None, aucun fichier torrent n'a été trouvé
+                print(f"[OK] : Torrent déplacé vers {pathInputDirDeluge} avec succès")
+                queueJson.put(fileJson)  # Ajouter le fileJson dans la file d'attente
+        except Exception as e:
+            print(f"Une erreur s'est produite lors de la gestion du torrent et du JSON : {str(e)}")
 
-def sortFiles(pathOutputDirDeluge, pathNewDirMedia, result_queue):
+def sortFiles(pathOutputDirDeluge, pathNewDirMedia, queueJson):
     """
     Trie les fichiers.
     """
-    try:
-        fileJson = result_queue.get()  # Récupérer le fileJson de la file d'attente
-        error = fileSorting.fileSortingMain(pathOutputDirDeluge, pathNewDirMedia, fileJson)
-        if error:
-            print(f"[ERR] : Une erreur s'est produite lors du tri : {error}")
-        else:
-            print("[OK] : Le tri s'est déroulé avec succès")
-    except Exception as e:
-        print(f"Une erreur s'est produite lors du tri des fichiers : {str(e)}")
+    while True:
+        try:
+            fileJson = queueJson.get()  # Récupérer le fileJson de la file d'attente
+            if fileJson is None:
+                pass
+            else:
+                error = fileSorting.fileSortingMain(pathOutputDirDeluge, pathNewDirMedia, fileJson)
+                if error is not None:
+                    print(f"[ERR] : Une erreur s'est produite lors du tri : {error}")
+                else:
+                    print("[OK] : Le tri s'est déroulé avec succès")
+        except Exception as e:
+            print(f"Une erreur s'est produite lors du tri des fichiers : {str(e)}")
 
 if __name__ == "__main__":
     try:
@@ -83,22 +89,18 @@ if __name__ == "__main__":
             print("[OK] : Chargement des chemins réalisé avec succès")
 
             # Création de la file d'attente partagée
-            result_queue = queue.Queue()
+            queueJson = queue.Queue()
 
-            while True:
-                # Création et démarrage des threads pour gérer le torrent et le tri des fichiers
-                torrentThread = threading.Thread(target=manageTorrentAndJson, args=(pathSourceDirJson, pathSourceDirTorrent, pathInputDirDeluge, result_queue))
-                sortingThread = threading.Thread(target=sortFiles, args=(pathOutputDirDeluge, pathNewDirMedia, result_queue))
+            # Création et démarrage des threads
+            torrentThread = threading.Thread(target=manageTorrentAndJson, args=(pathSourceDirJson, pathSourceDirTorrent, pathInputDirDeluge, queueJson))
+            sortingThread = threading.Thread(target=sortFiles, args=(pathOutputDirDeluge, pathNewDirMedia, queueJson))
 
-                torrentThread.start()
-                sortingThread.start()
+            torrentThread.start()
+            sortingThread.start()
 
-                # Attente que les threads se terminent
-                torrentThread.join()
-                sortingThread.join()
-
-                # Attendre xx sec avant de répéter le processus
-                time.sleep(30)
+            # Attente que les threads se terminent
+            torrentThread.join()
+            sortingThread.join()
                 
     except Exception as e:
         print(f"Une erreur s'est produite dans le main.py: {str(e)}")

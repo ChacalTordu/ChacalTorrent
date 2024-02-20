@@ -1,14 +1,13 @@
 import os
 import shutil
 
-def checkDuplicateFiles(sourceDirJson, sourceDirTorrent, inputDirDeluge):
+def checkDuplicateFiles(sourceDirJson, sourceDirTorrent):
     """
     Vérifie la duplication des fichiers .json et .torrent dans deux dossiers différents.
 
     Args:
         sourceDirJson (str): Chemin vers le répertoire contenant les fichiers .json.
         sourceDirTorrent (str): Chemin vers le répertoire contenant les fichiers .torrent.
-        inputDirDeluge (str): Chemin vers le répertoire de destination pour les fichiers .torrent.
 
     Returns:
         tuple: Un tuple contenant le nom du fichier torrent et le fichier JSON correspondant, ou (None, None) s'il n'y a pas de duplication.
@@ -22,6 +21,7 @@ def checkDuplicateFiles(sourceDirJson, sourceDirTorrent, inputDirDeluge):
             for fileTorrent in filesTorrent:
                 nameTorrent = os.path.splitext(fileTorrent)[0]  # Retire l'extension .torrent
                 if nameJson == nameTorrent:
+                    print(f"Nouveau Torrent detecté : {nameTorrent}")
                     return fileTorrent, os.path.join(sourceDirJson, fileJson)  # Renvoie le nom du fichier torrent et le fichier JSON correspondant
         return None, None  # Si aucun fichier en double n'est trouvé
     except FileNotFoundError as e:
@@ -43,9 +43,9 @@ def moveTorrentToDeluge(path_sourceDirTorrent, path_inputDirDeluge, fileTorrent)
         sourcePath = os.path.join(path_sourceDirTorrent, fileTorrent)
         targetPath = os.path.join(path_inputDirDeluge, fileTorrent)
         shutil.move(sourcePath, targetPath)
-        return None  # No error occurred, return None
+        return None
     except FileNotFoundError as e:
-        return f"Error: {e.strerror} ({e.filename})"
+        return f"Error: {e.strerror} ({e.filename}"
 
 def torrentAndJsonManagementMain(path_sourceDirJson, path_sourceDirTorrent, path_inputDirDeluge):
     """
@@ -61,7 +61,7 @@ def torrentAndJsonManagementMain(path_sourceDirJson, path_sourceDirTorrent, path
         or (None, None, error_torrentAndJsonManagementMain) in case of error.
     """
     try:
-        file_torrent, file_json = checkDuplicateFiles(path_sourceDirJson, path_sourceDirTorrent, path_inputDirDeluge)
+        file_torrent, file_json = checkDuplicateFiles(path_sourceDirJson, path_sourceDirTorrent)
         if file_torrent:
             if not moveTorrentToDeluge(path_sourceDirTorrent, path_inputDirDeluge, file_torrent):
                 if file_json:
