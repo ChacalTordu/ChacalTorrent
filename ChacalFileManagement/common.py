@@ -61,7 +61,7 @@ def renameDirectory(path_dir):
         file_jsonData = os.path.join(path_dir, f"{dir_name}.json")
         # Remplacer les barres obliques inverses par des barres obliques normales
         file_jsonData = os.path.normpath(file_jsonData)
-        new_name = getMediaTypeFromJson(file_jsonData)
+        new_name = getNameMediaFromJson(file_jsonData)
 
         if not new_name:
             print(f"[ERR]: Cannot rename directory. Metadata not found or invalid in {file_jsonData}")

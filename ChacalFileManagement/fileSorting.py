@@ -37,6 +37,7 @@ def checkMatchingFiles(path_newDirMedia, path_outputDirDeluge, file_listNameFile
                 try:
                     shutil.move(pathSource, pathTarget)
                     print(f"[OK] : {name} déplacé avec succès vers {pathTarget}.")
+                    pathTarget = os.path.dirname(pathTarget)
                     common.renameDirectory(pathTarget) # Rename folder 
                 except Exception as e:
                     print(f"[ERR] Erreur lors du déplacement de {name} : {str(e)}\n[INFOS] : pathSource = {pathSource}\n[INFOS] : pathTarget = {pathTarget}")
