@@ -50,7 +50,6 @@ def checkMatchingFiles(path_newDirMedia, path_outputDirDeluge, file_listNameFile
                     raise Exception(f"[ERR] Erreur lors du déplacement de {name} : {str(e)}\n[INFOS] : pathSource = {pathSource}\n[INFOS] : pathTarget = {pathTarget}")
     return None
 
-
 def createNewFileSought(path_newDirMedia, file_json):
     """
     Crée un nouveau média à chercher.
