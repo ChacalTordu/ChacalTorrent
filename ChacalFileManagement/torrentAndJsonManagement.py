@@ -45,7 +45,7 @@ def moveTorrentToDeluge(path_sourceDirTorrent, path_inputDirDeluge, fileTorrent)
         shutil.move(sourcePath, targetPath)
         return None
     except FileNotFoundError as e:
-        return f"Error: {e.strerror} ({e.filename}"
+        return f"{e.strerror} ({e.filename}"
 
 def torrentAndJsonManagementMain(path_sourceDirJson, path_sourceDirTorrent, path_inputDirDeluge):
     """

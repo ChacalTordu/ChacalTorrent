@@ -54,28 +54,56 @@ def manageTorrentAndJson(pathSourceDirJson, pathSourceDirTorrent, pathInputDirDe
                 if error != "No torrent file found.":
                     print(f"[ERR] : Une erreur s'est produite lors de la gestion du torrent et du JSON : {error}")
             elif fileJson is not None:  # Si fileJson est None, aucun fichier torrent n'a été trouvé
-                print(f"[OK] : Torrent déplacé vers {pathInputDirDeluge} avec succès")
+                print(f"[OK] : Téléchargement en cours ... ")
                 queueJson.put(fileJson)  # Ajouter le fileJson dans la file d'attente
         except Exception as e:
             print(f"Une erreur s'est produite lors de la gestion du torrent et du JSON : {str(e)}")
+
+def initSortFiles(pathNewDirMedia):
+    """
+    Crée un fichier appelé 'listFileSought' dans le répertoire spécifié s'il n'existe pas déjà.
+
+    Args:
+        pathNewDirMedia (str): Le chemin du répertoire où créer le fichier.
+
+    Returns:
+        str: Le chemin complet du fichier créé ou existant.
+    """
+    file_path = os.path.join(pathNewDirMedia, "listFileSought") # Construire le chemin complet du fichier
+
+    # Vérifier si le fichier existe déjà
+    if os.path.exists(file_path):
+        print(f"[INFOS] : Le fichier 'listFileSought' existe déjà à l'emplacement : {file_path}")
+        return file_path  # Retourner le chemin complet du fichier existant
+
+    try:
+        # S'il n'existe pas, créer le fichier en mode écriture et le fermer immédiatement pour le créer
+        with open(file_path, 'w') as file:
+            pass
+        
+        print(f"[OK] : Le fichier 'listFileSought' a été créé avec succès à l'emplacement : {file_path}")
+        return file_path  # Retourner le chemin complet du fichier créé
+    except Exception as e:
+        raise Exception(f"Erreur lors de la création du fichier 'listFileSought': {str(e)}")
 
 def sortFiles(pathOutputDirDeluge, pathNewDirMedia, queueJson):
     """
     Trie les fichiers.
     """
+    file_listNameFileSought = initSortFiles(pathNewDirMedia)
     while True:
         try:
-            fileJson = queueJson.get()  # Récupérer le fileJson de la file d'attente
-            if fileJson is None:
-                pass
-            else:
-                error = fileSorting.fileSortingMain(pathOutputDirDeluge, pathNewDirMedia, fileJson)
-                if error is not None:
-                    print(f"[ERR] : Une erreur s'est produite lors du tri : {error}")
-                else:
-                    print("[OK] : Le tri s'est déroulé avec succès")
+            try :
+                fileJson = queueJson.get_nowait()  # Récupérer le fileJson de la file d'attente
+            except :
+                fileJson = None
+            nameMediaDownloaded = fileSorting.fileSortingMain(pathOutputDirDeluge, pathNewDirMedia, fileJson, file_listNameFileSought)
+            if nameMediaDownloaded is not None:
+                print(f"[OK] : Fichier {nameMediaDownloaded} téléchargé et trié avec succès")
+        except ValueError as e:
+            print(f"[ERR] : Value Error {str(e)}")
         except Exception as e:
-            print(f"\n[ERR] : Une erreur s'est produite lors du tri des fichiers : {str(e)}")
+            print(f"[ERR] : Une erreur s'est produite lors du tri des fichiers : {str(e)}")
 
 def signalHandler(sig, frame):
     print('[INFOS] : Exit ...')
