@@ -34,19 +34,22 @@ def checkMatchingFiles(path_newDirMedia, path_outputDirDeluge, file_listNameFile
     for root, dirs, files in os.walk(path_outputDirDeluge):
         for name in files + dirs:
             baseName, _ = os.path.splitext(name)
-            # Vérifier si le nom de base correspond à l'un des noms recherchés
             if baseName in list_nameFileSought:
                 pathSource = os.path.join(root, name)
                 pathTarget = os.path.join(path_newDirMedia, baseName, name) 
                 try:
                     shutil.move(pathSource, pathTarget)
                     print(f"[OK] : {name} déplacé avec succès vers {pathTarget}.")
+                    list_nameFileSought.remove(baseName)
+                    with open(file_listNameFileSought, 'w') as file:
+                        file.write('\n'.join(list_nameFileSought))
                     pathTarget = os.path.dirname(pathTarget)
-                    common.renameDirectory(pathTarget) # Rename folder 
+                    common.renameDirectory(pathTarget)
                     return name
                 except Exception as e:
                     raise Exception(f"[ERR] Erreur lors du déplacement de {name} : {str(e)}\n[INFOS] : pathSource = {pathSource}\n[INFOS] : pathTarget = {pathTarget}")
     return None
+
 
 def createNewFileSought(path_newDirMedia, file_json):
     """
