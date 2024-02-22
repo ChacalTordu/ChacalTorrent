@@ -1,63 +1,104 @@
 import os
 import shutil
 
-def renameFile(targetDir, oldName, newName):
-    try:
-        # Construire le chemin complet de l'ancien nom de fichier
-        oldFilePath = os.path.join(targetDir, oldName)
-        
-        # Extraire l'extension de l'ancien nom de fichier
-        _, extension = os.path.splitext(oldName)
-        
-        # Construire le chemin complet du nouveau nom de fichier avec extension
-        # Récupérer le nouveau nom depuis le dossier
-        newNameFromFolder = os.path.join(targetDir, newName, oldName)
-        newFilePath = os.path.join(targetDir, newName, newName + extension)
-        
-        # Renommer le fichier
-        os.rename(newNameFromFolder, newFilePath)
-        print(f"Le fichier {oldName} a été renommé en {newName + extension}.")
-    except FileNotFoundError as e:
-        print(f"Erreur lors du renommage du fichier : {str(e)}")
-    except Exception as e:
-        print(f"Une erreur s'est produite lors du renommage du fichier : {str(e)}")
+from logger_config import logger
+import common
 
-
-def fileOrFolderScanner(targetDir, torrentName, nameMedia):
-    try:
-        # Vérifier si le dossier cible existe
-        if not os.path.exists(targetDir):
-            raise FileNotFoundError(f"Le dossier cible {targetDir} n'existe pas.")
-        
-        # Parcourir les fichiers et dossiers dans le dossier cible
-        for root, dirs, files in os.walk(targetDir):
-            for name in files + dirs:
-                # Extraire le nom de fichier sans extension
-                base_name, _ = os.path.splitext(name)
-                if base_name == torrentName:
-                    # Construire les chemins source et cible
-                    sourcePath = os.path.join(root, name)
-                    targetPath = os.path.join(targetDir, torrentName, name)
-                    try:
-                        # Déplacer le fichier/dossier vers le dossier créé par createMediaDirFromJson
-                        shutil.move(sourcePath,nameMedia)
-                        print(f"{name} déplacé avec succès vers {targetPath}.")
-                    except Exception as e:
-                        print(f"Erreur lors du déplacement de {name} : {str(e)}")
-                else : 
-                    print("Erreur dans fileSorting, base_name != torrentName\nbase_Name: ",base_name,"\nnameMedia: ",nameMedia)
+def checkValidateParameter(path_outputDirDeluge, path_newDirMedia, fileJson, file_listNameFileSought):
+    """
+    Vérifie la validité des paramètres.
     
-    except FileNotFoundError as e:
-        print(f"Erreur dans fileSorting: {str(e)}")
-    except Exception as e:
-        print(f"Une erreur s'est produite dans fileSorting: {str(e)}")
+    Vérifie si le fichier JSON n'est pas vide, si le dossier de sortie Deluge existe et si le nouveau dossier média existe.
+    """
+    if not fileJson:
+        raise ValueError("Fichier JSON vide")
 
-def fileSortingMain(targetDir, torrentName, nameMedia):
+    if not os.path.exists(path_outputDirDeluge):
+        raise FileNotFoundError(f"Le dossier outputDirDeluge {path_outputDirDeluge} n'existe pas.")
+
+    if not os.path.exists(path_newDirMedia):
+        raise FileNotFoundError(f"Le dossier des nouveaux médias {path_newDirMedia} n'existe pas.")
+    
+    if not os.path.exists(file_listNameFileSought):
+        raise FileNotFoundError(f"Le fichier de recherche {file_listNameFileSought} n'existe pas.")
+    
+def checkMatchingFiles(path_newDirMedia, path_outputDirDeluge, file_listNameFileSought):
+    """
+    Déplace les fichiers/dossier qui match avec l'un des noms de la file_listNameFileSought vers le dossier média correspondant.
+    
+    Parcourt les fichiers dans le dossier de sortie Deluge et déplace ceux correspondant au nom recherché vers le nouveau dossier média.
+    """
+
+    with open(file_listNameFileSought, 'r') as f:
+        list_nameFileSought = f.read().splitlines()
+
+    for root, dirs, files in os.walk(path_outputDirDeluge):
+        for name in files + dirs:
+            baseName, _ = os.path.splitext(name)
+            if baseName in list_nameFileSought:
+                pathSource = os.path.join(root, name)
+                pathTarget = os.path.join(path_newDirMedia, baseName, name) 
+                try:
+                    shutil.move(pathSource, pathTarget)
+                    logger.info(f"[OK] : {name} déplacé avec succès vers {pathTarget}.")
+                    list_nameFileSought.remove(baseName)
+                    with open(file_listNameFileSought, 'w') as file:
+                        file.write('\n'.join(list_nameFileSought))
+                    pathTarget = os.path.dirname(pathTarget)
+                    common.renameDirectory(pathTarget)
+                    return name
+                except Exception as e:
+                    raise Exception(f"[ERR] Erreur lors du déplacement de {name} : {str(e)}\n[INFOS] : pathSource = {pathSource}\n[INFOS] : pathTarget = {pathTarget}")
+    return None
+
+def createNewFileSought(path_newDirMedia, file_json):
+    """
+    Crée un nouveau média à chercher.
+
+    Args:
+        path_newDirMedia (str): Le chemin du dossier où créer les médias.
+        file_json (str): Le chemin du fichier JSON.
+
+    Returns:
+        str: Le chemin complet du fichier de la liste des fichiers recherchés.
+    """
+    common.createMediaDirFromJson(path_newDirMedia, file_json) # Creation of mediaDir w/ json in it
+
+    file_listNameFileSought = os.path.join(path_newDirMedia, "listFileSought")
+
+    nameFileSought = os.path.splitext(os.path.basename(file_json))[0]
+
     try:
-        # Appeler fileOrFolderScanner pour déplacer le fichier
-        fileOrFolderScanner(targetDir, torrentName, nameMedia)
-    except FileNotFoundError as e:
-        print(f"Erreur dans fileSortingMain: {str(e)}")
-    except Exception as e:
-        print(f"Une erreur s'est produite dans fileSortingMain: {str(e)}")
+        if os.path.exists(file_listNameFileSought):
+            # Vérifier si le nom est déjà présent dans le fichier
+            with open(file_listNameFileSought, 'r') as f:
+                existing_names = f.read().splitlines()
+            if nameFileSought not in existing_names:
+                # Si le nom n'est pas déjà présent, l'ajouter
+                with open(file_listNameFileSought, 'a') as f:
+                    f.write(nameFileSought + '\n')
+        else:
+            with open(file_listNameFileSought, 'w') as f:
+                f.write(nameFileSought + '\n')
 
+        logger.info(f"[OK] : Attente de fin de téléchargement de {nameFileSought} ... ")
+        return file_listNameFileSought
+    except Exception as e:
+        raise Exception(f"{str(e)}")
+
+def fileSortingMain(path_outputDirDeluge, path_newDirMedia, file_json, file_listNameFileSought):
+    """
+    Fonction principale pour trier les fichiers.
+    
+    Coordonne le processus de tri des fichiers en appelant les fonctions auxiliaires.
+    """
+    try:
+        if file_json is not None:
+            checkValidateParameter(path_outputDirDeluge, path_newDirMedia, file_json, file_listNameFileSought)          # Check parameter
+            createNewFileSought(path_newDirMedia, file_json)                                                            # Create list of seek nameMedia
+        nameMediaDownloaded = checkMatchingFiles(path_newDirMedia, path_outputDirDeluge, file_listNameFileSought)       # Check matching newmedia depends on seekNameMedia
+        return nameMediaDownloaded
+    except (ValueError, FileNotFoundError) as e:
+        raise ValueError(f"{str(e)}")
+    except Exception as e:
+        raise Exception(f"{str(e)}")
