@@ -1,6 +1,7 @@
 import os
 import shutil
 
+from logger_config import logger
 import common
 
 def checkValidateParameter(path_outputDirDeluge, path_newDirMedia, fileJson, file_listNameFileSought):
@@ -39,7 +40,7 @@ def checkMatchingFiles(path_newDirMedia, path_outputDirDeluge, file_listNameFile
                 pathTarget = os.path.join(path_newDirMedia, baseName, name) 
                 try:
                     shutil.move(pathSource, pathTarget)
-                    print(f"[OK] : {name} déplacé avec succès vers {pathTarget}.")
+                    logger.info(f"[OK] : {name} déplacé avec succès vers {pathTarget}.")
                     list_nameFileSought.remove(baseName)
                     with open(file_listNameFileSought, 'w') as file:
                         file.write('\n'.join(list_nameFileSought))
@@ -80,7 +81,7 @@ def createNewFileSought(path_newDirMedia, file_json):
             with open(file_listNameFileSought, 'w') as f:
                 f.write(nameFileSought + '\n')
 
-        print(f"[OK] : Attente de fin de téléchargement de {nameFileSought} ... ")
+        logger.info(f"[OK] : Attente de fin de téléchargement de {nameFileSought} ... ")
         return file_listNameFileSought
     except Exception as e:
         raise Exception(f"{str(e)}")

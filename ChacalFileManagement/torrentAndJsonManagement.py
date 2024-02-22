@@ -1,6 +1,8 @@
 import os
 import shutil
 
+from logger_config import logger
+
 def checkDuplicateFiles(sourceDirJson, sourceDirTorrent):
     """
     Vérifie la duplication des fichiers .json et .torrent dans deux dossiers différents.
@@ -21,11 +23,11 @@ def checkDuplicateFiles(sourceDirJson, sourceDirTorrent):
             for fileTorrent in filesTorrent:
                 nameTorrent = os.path.splitext(fileTorrent)[0]  # Retire l'extension .torrent
                 if nameJson == nameTorrent:
-                    print(f"[INFOS] : Nouveau Torrent detecté : {nameTorrent}")
+                    logger.info(f"[INFOS] : Nouveau Torrent detecté : {nameTorrent}")
                     return fileTorrent, os.path.join(sourceDirJson, fileJson)  # Renvoie le nom du fichier torrent et le fichier JSON correspondant
         return None, None  # Si aucun fichier en double n'est trouvé
     except FileNotFoundError as e:
-        print(f"Erreur: {e.strerror} ({e.filename})")
+        logger.error(f"Erreur: {e.strerror} ({e.filename})")
         return None, None
 
 def moveTorrentToDeluge(path_sourceDirTorrent, path_inputDirDeluge, fileTorrent):

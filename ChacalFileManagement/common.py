@@ -2,6 +2,8 @@ import os
 import json
 import shutil
 
+from logger_config import logger
+
 def reformatJson(file_inputJson):
     """
     Reformate un fichier JSON en modifiant sa structure.
@@ -38,11 +40,11 @@ def reformatJson(file_inputJson):
             json.dump(reformatted_data, f, ensure_ascii=False, indent=2)
     
     except FileNotFoundError:
-        print(f"Erreur: Le fichier {file_inputJson} n'existe pas.")
+        logger.error(f"Erreur: Le fichier {file_inputJson} n'existe pas.")
     except json.JSONDecodeError:
-        print(f"Erreur: Impossible de décoder le fichier JSON {file_inputJson}.")
+        logger.error(f"Erreur: Impossible de décoder le fichier JSON {file_inputJson}.")
     except (ValueError, SyntaxError):
-        print("Erreur: Le format du fichier JSON est incorrect.")
+        logger.error("Erreur: Le format du fichier JSON est incorrect.")
 
 def renameDirectory(path_dir):
     """
@@ -64,7 +66,7 @@ def renameDirectory(path_dir):
         new_name = getNameMediaFromJson(file_jsonData)
 
         if not new_name:
-            print(f"[ERR]: Cannot rename directory. Metadata not found or invalid in {file_jsonData}")
+            logger.error(f"[ERR]: Cannot rename directory. Metadata not found or invalid in {file_jsonData}")
             return None
 
         # Obtenir le chemin du répertoire parent
@@ -73,10 +75,10 @@ def renameDirectory(path_dir):
         path_newDirectory = os.path.join(path_parent, new_name)
         # Renommer le répertoire
         os.rename(path_dir, path_newDirectory)
-        print(f"[OK] : Le dossier a été renommé avec succès en '{new_name}'.")
+        logger.info(f"[OK] : Le dossier a été renommé avec succès en '{new_name}'.")
         return path_newDirectory
     except Exception as e:
-        print(f"[ERR] Error occurred while renaming directory: {str(e)}")
+        logger.error(f"[ERR] Error occurred while renaming directory: {str(e)}")
         return None
 
 
@@ -99,7 +101,7 @@ def createMediaDirFromJson(path_newMediaDir, file_jsonFile):
             mediaPath = os.path.join(path_newMediaDir, nameMedia.encode('utf-8').decode('latin1'))
             os.makedirs(mediaPath, exist_ok=True)       # Create the directory
             shutil.move(file_jsonFile, mediaPath)       # Move the JSON in it
-            print(f"[OK] : Création du dossier {nameMedia} dans {path_newMediaDir} est réalisé avec succés")
+            logger.info(f"[OK] : Création du dossier {nameMedia} dans {path_newMediaDir} est réalisé avec succés")
             return None
         else:
             return None, "[ERR] : 'NameMedia' is not specified in the JSON file."
@@ -126,7 +128,7 @@ def getMediaTypeFromJson(file_jsonData):
             data = json.load(f)
             return data.get('mediaType')
     except FileNotFoundError:
-        print(f"[ERR] : The file {file_jsonData} does not exist.")
+        logger.error(f"[ERR] : The file {file_jsonData} does not exist.")
         return ""
 
 def getBoolMediaMultipleSeasonFromJson(file_jsonData):
@@ -144,7 +146,7 @@ def getBoolMediaMultipleSeasonFromJson(file_jsonData):
             data = json.load(f)
             return data.get('boolMediaMultipleSeason')
     except FileNotFoundError:
-        print(f"[ERR] : The file {file_jsonData} does not exist.")
+        logger.error(f"[ERR] : The file {file_jsonData} does not exist.")
         return False
 
 def getBoolAlreadyExistFromJson(file_jsonData):
@@ -162,7 +164,7 @@ def getBoolAlreadyExistFromJson(file_jsonData):
             data = json.load(f)
             return data.get('boolAlreadyExist')
     except FileNotFoundError:
-        print(f"[ERR] : The file {file_jsonData} does not exist.")
+        logger.error(f"[ERR] : The file {file_jsonData} does not exist.")
         return False
 
 def getNameMediaFromJson(file_jsonData):
@@ -180,5 +182,5 @@ def getNameMediaFromJson(file_jsonData):
             data = json.load(f)
             return data.get('NameMedia')
     except FileNotFoundError:
-        print(f"[ERR] : The file {file_jsonData} does not exist.")
+        logger.error(f"[ERR] : The file {file_jsonData} does not exist.")
         return ""
