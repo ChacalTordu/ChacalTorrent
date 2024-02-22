@@ -1,3 +1,11 @@
+<!--
+ZoneFileInfos.vue - Media Information Component
+
+This component provides options for selecting media type, entering media name/path, and confirming or cancelling the selection.
+
+Author: ChacalTordu
+-->
+
 <template>
   <div :class="{ 'dataValid': dataValidFlag }" class="mediaContainer">
     <div class="mediaType">
@@ -43,137 +51,172 @@
 </template>
 
 <script setup>
-import {ref} from 'vue'
-import CheckboxTrueOrFalse from './checkbox/CheckboxTrueOrFalse.vue'
+import { ref } from 'vue';
+import CheckboxTrueOrFalse from './checkbox/CheckboxTrueOrFalse.vue';
 import ButtonConfirm from './button/ButtonConfirm.vue';
 import ButtonAbort from './button/ButtonAbort.vue';
 
-const dataValidFlag = ref(false)
+const dataValidFlag = ref(false);
+const selectedMediaType = ref('Nom du média');
+const pathMedia = ref('');
+const checkbox1 = ref();
+const checkbox2 = ref();
 
-const selectedMediaType = ref('Nom du média')
-const pathMedia = ref('')
-const checkbox1 = ref()
-const checkbox2 = ref()
+const emits = defineEmits(['saveMediaData', 'resetButton', 'abortClicked']);
 
-const emits = defineEmits(['saveMediaData','resetButton','abortClicked'])
-
+/**
+ * Handles confirm button click event
+ */
 function handleConfirmClicked() {
   if ((selectedMediaType.value === 'Film') || (selectedMediaType.value === 'Dessin animé')) {
     if (pathMedia.value == '') {
-      emits('resetButton')
-    }else{
-      dataValidFlag.value = true
-      emits('saveMediaData',selectedMediaType,pathMedia,false,false)
+      emits('resetButton');
+    } else {
+      dataValidFlag.value = true;
+      emits('saveMediaData', selectedMediaType, pathMedia, false, false);
     }
-  }else{
-    if((checkbox1.value == undefined) || (checkbox2.value == undefined) || (pathMedia.value == '')){
-      emits('resetButton')
-    }else{
-      dataValidFlag.value = true
-      emits('saveMediaData',selectedMediaType,pathMedia,checkbox1.value,checkbox2.value)
+  } else {
+    if ((checkbox1.value == undefined) || (checkbox2.value == undefined) || (pathMedia.value == '')) {
+      emits('resetButton');
+    } else {
+      dataValidFlag.value = true;
+      emits('saveMediaData', selectedMediaType, pathMedia, checkbox1.value, checkbox2.value);
     }
   }
 }
 
-function toggleInputTextVisible(value){
+/**
+ * Toggles visibility of input text based on checkbox value
+ */
+function toggleInputTextVisible(value) {
   if (value == "Yes") {
-    checkbox2.value = false
+    checkbox2.value = false;
   } else if (value == "No") {
-    checkbox2.value = true
+    checkbox2.value = true;
   }
 }
 
-function CheckCheckbox1Value(value){
+/**
+ * Checks value of Checkbox1
+ */
+function CheckCheckbox1Value(value) {
   if (value == "Yes") {
-    checkbox1.value = true
+    checkbox1.value = true;
   } else if (value == "No") {
-    checkbox1.value = false
+    checkbox1.value = false;
   }
 }
 
-function toggleCheckbox1(value){
-  CheckCheckbox1Value(value)
+/**
+ * Toggles Checkbox1 value
+ */
+function toggleCheckbox1(value) {
+  CheckCheckbox1Value(value);
 }
 
-function CheckCheckbox2Value(value){
+/**
+ * Checks value of Checkbox2
+ */
+function CheckCheckbox2Value(value) {
   if (value == "Yes") {
-    checkbox2.value = true
+    checkbox2.value = true;
   } else if (value == "No") {
-    checkbox2.value = false
+    checkbox2.value = false;
   }
 }
 
-function toggleCheckbox2(value){
-  toggleInputTextVisible(value)
-  CheckCheckbox2Value(value)
+/**
+ * Toggles Checkbox2 value and input text visibility
+ */
+function toggleCheckbox2(value) {
+  toggleInputTextVisible(value);
+  CheckCheckbox2Value(value);
 }
 
+/**
+ * Handles abort button click event
+ */
 function handleAbort() {
-  dataValidFlag.value = false
-  emits('abortClicked')
+  dataValidFlag.value = false;
+  emits('abortClicked');
 }
 </script>
 
 <style scoped>
-  .mediaContainer {
-    width: 600px;
-    margin: auto;
-    display: grid;
-    border-radius: 8px;
-    padding: 10px;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
-  }
-  .mediaType {
-    display: flex;
-    flex-direction:row;
-    justify-content: space-around;
-  }
+/**
+ * Styles for Media Container
+ */
+.mediaContainer {
+  width: 600px;
+  margin: auto;
+  display: grid;
+  border-radius: 8px;
+  padding: 10px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+}
 
-  .mediaLabel {
-    align-items: center;
-    margin-bottom: 10px;
-    cursor: pointer;
-  }
+/**
+ * Styles for Media Type Section
+ */
+.mediaType {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+}
 
-  .mediaLabel span {
-    margin-left: 16px;
-  }
+.mediaLabel {
+  align-items: center;
+  margin-bottom: 10px;
+  cursor: pointer;
+}
 
-  .mediaChoice {
-    width: 100%;
-    display: block;
-    flex-direction: column;
-    align-items: center;
-  }
+.mediaLabel span {
+  margin-left: 16px;
+}
 
-  p {
-    text-align: center;
-  }
+/**
+ * Styles for Media Choice Section
+ */
+.mediaChoice {
+  width: 100%;
+  display: block;
+  flex-direction: column;
+  align-items: center;
+}
 
-  input {
-    padding: 8px;
-    margin-bottom: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    width: 100%;
-    box-sizing: border-box;
-  }
+/**
+ * General input styles
+ */
+input {
+  padding: 8px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: 100%;
+  box-sizing: border-box;
+}
 
-  input:hover,
-  input:focus {
-    border-color: #C8C6AF;
-  }
+input:hover,
+input:focus {
+  border-color: #C8C6AF;
+}
 
-  .question {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
+/**
+ * Styles for question section
+ */
+.question {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
 
-  .myButton{
-    width: 100px;
-    height: 40px;
-    margin: auto;
-  }
+/**
+ * Button Styles
+ */
+.myButton {
+  width: 100px;
+  height: 40px;
+  margin: auto;
+}
 </style>

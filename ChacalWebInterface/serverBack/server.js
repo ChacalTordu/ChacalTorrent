@@ -1,3 +1,11 @@
+/**
+ * Server.js - File Upload and WebSocket Server
+ *
+ * This script sets up an Express server to handle file uploads and JSON data, as well as WebSocket connections.
+ * It listens for uploaded files, saves them to designated folders, and processes JSON data, writing it to files.
+ * Additionally, it establishes a WebSocket server to provide real-time updates to clients based on log file changes.
+ */
+
 const express = require('express');
 const multer = require('multer');
 const fs = require('fs');
@@ -6,7 +14,7 @@ const cors = require('cors');
 const WebSocket = require('ws');
 const readline = require('readline');
 
-// Définir les dossiers de destination
+// Define destination folders
 const uploadDestination = 'uploadsTorrent/';
 const jsonDestination = 'uploadsJSON/';
 let fileName = '';
@@ -14,78 +22,96 @@ let fileName = '';
 const app = express();
 const upload = multer({ dest: uploadDestination });
 
-// Definir le port d'écoute
+// Define listening port
 const port = process.env.PORT || 3000;
 
 const wss = new WebSocket.Server({ port: 8080 });
-const nbLinesOfLog = 5
+const nbLinesOfLog = 5;
 
-// Configuration du CORS
+// Configure CORS
 app.use(cors());
 
 // Middleware
-app.use(express.json()); // Prise en charge des données JSON
-app.use(express.urlencoded({ extended: true })); // Prise en charge des données encodées dans l'URL
+app.use(express.json()); // JSON data support
+app.use(express.urlencoded({ extended: true })); // URL encoded data support
 
-// Route POST pour le téléchargement de fichiers
+/**
+ * POST Route for File Upload
+ * Uploads a single file and saves it to the designated folder.
+ */
 app.post('/uploadFile', upload.single('file'), (req, res) => {
   try {
     if (!req.file) {
-      throw new Error('Aucun fichier téléchargé.');
+      throw new Error('Aucun fichier téléchargé.'); // No file uploaded
     }
 
     const uploadedFile = req.file;
     const destinationPath = path.join(__dirname, uploadDestination, uploadedFile.originalname);
 
-    // Déplacer le fichier téléchargé vers le dossier de destination
+    // Move uploaded file to destination folder
     fs.renameSync(uploadedFile.path, destinationPath);
 
-    // Récupérer le nom du fichier téléchargé sans l'extension
+    // Get uploaded file name without extension
     fileName = path.parse(uploadedFile.originalname).name;
 
-    res.send('Fichier téléchargé avec succès !');
+    res.send('Fichier téléchargé avec succès !'); // File uploaded successfully
 
   } catch (error) {
-    console.error('Une erreur est survenue lors du téléchargement du fichier :', error.message);
-    res.status(500).send('Une erreur est survenue lors du téléchargement du fichier.');
+    console.error('Une erreur est survenue lors du téléchargement du fichier :', error.message); // Error during file upload
+    res.status(500).send('Une erreur est survenue lors du téléchargement du fichier.'); // Error response
   }
 });
 
-// Route POST pour les données JSON
+/**
+ * POST Route for JSON Data
+ * Receives JSON data and writes it to a file.
+ */
 app.post('/uploadJSON', (req, res) => {
   try {
     const jsonData = req.body;
     writeJSONToFile(jsonData);
-    res.send('Données JSON reçues avec succès !');
+    res.send('Données JSON reçues avec succès !'); // JSON data received successfully
   } catch (error) {
-    console.error('Une erreur est survenue lors de la réception des données JSON :', error.message);
-    res.status(500).send('Une erreur est survenue lors de la réception des données JSON.');
+    console.error('Une erreur est survenue lors de la réception des données JSON :', error.message); // Error receiving JSON data
+    res.status(500).send('Une erreur est survenue lors de la réception des données JSON.'); // Error response
   }
 });
 
-// Fonction d'écriture du fichier JSON
+/**
+ * Writes JSON Data to File
+ * Writes received JSON data to a file in JSON format.
+ * @param {Object} jsonData - JSON data to be written to file
+ */
 function writeJSONToFile(jsonData) {
   try {
-    // Chemin du fichier JSON à écrire
+    // File path to write JSON
     const filePath = path.join(__dirname, jsonDestination, fileName + '.json');
 
-    // Convertir les données JSON en chaîne JSON
+    // Convert JSON data to JSON string
     const jsonString = JSON.stringify(jsonData, null, 2);
 
-    // Écrire les données JSON dans le fichier
+    // Write JSON data to file
     fs.writeFileSync(filePath, jsonString);
 
     // console.log('Données JSON écrites avec succès dans le fichier:', filePath);
   } catch (error) {
-    console.error('Une erreur est survenue lors de l\'écriture des données JSON dans le fichier :', error.message);
+    console.error('Une erreur est survenue lors de l\'écriture des données JSON dans le fichier :', error.message); // Error writing JSON data to file
   }
 }
 
+/**
+ * Starts the HTTP server
+ * Starts the Express server on the defined port.
+ */
 app.listen(port, () => {
-  console.log(`Serveur HTTP démarré sur le port ${port}`);
+  console.log(`Serveur HTTP démarré sur le port ${port}`); // HTTP server started on port
 });
 
-// Lire les dernières lignes du fichier .log
+/**
+ * Reads Last Lines of Log File
+ * Reads the last few lines of a specified log file and sends them to WebSocket clients.
+ * @param {number} numLines - Number of lines to read from the log file
+ */
 function readLastLines(numLines) {
   const logFilePath = path.join(__dirname, '../../fileManagement.log');
   const lines = [];
@@ -97,24 +123,24 @@ function readLastLines(numLines) {
   rl.on('line', (line) => {
     lines.push(line);
     if (lines.length > numLines) {
-      lines.shift(); // Retirer la première ligne si la liste dépasse le nombre de lignes demandé
+      lines.shift(); // Remove first line if list exceeds requested line count
     }
   });
 
   rl.on('close', () => {
     wss.clients.forEach((client) => {
       if (client.readyState === WebSocket.OPEN) {
-        client.send(lines.join('\n')); // Envoyer les dernières lignes aux clients WebSocket
+        client.send(lines.join('\n')); // Send last lines to WebSocket clients
       }
     });
   });
 }
 
-// Ajout de lecture du fichier .log
+// Add watch for log file changes
 const logFilePath = path.join(__dirname, '../../fileManagement.log');
 fs.watchFile(logFilePath, (curr, prev) => {
-  readLastLines(nbLinesOfLog); // Lire à nouveau les dix dernières lignes lorsque le fichier .log est modifié
+  readLastLines(nbLinesOfLog); // Read last lines again when log file is modified
 });
 
-// Lire les dernières lignes au démarrage du serveur
+// Read last lines on server startup
 readLastLines(nbLinesOfLog);

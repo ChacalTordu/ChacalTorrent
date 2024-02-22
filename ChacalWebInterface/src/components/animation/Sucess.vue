@@ -1,3 +1,13 @@
+<!--
+Sucess.vue - SVG Animation Component
+
+This component defines SVG animations for displaying different shapes and styles.
+It includes animations for circles and polylines, as well as text styles.
+
+Author: ChacalTordu
+
+-->
+
 <template>
   <div>
     <svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 130.2 130.2">
@@ -8,11 +18,20 @@
 </template>
 
 <style scoped>
+/**
+ * SVG Animation Styles
+ * Defines the animation for SVG elements such as circles and polylines.
+ */
+
 svg {
   width: 40px;
   display: block;
 }
 
+/**
+ * Path Animation
+ * Defines the animation for stroke-dasharray and stroke-dashoffset for SVG paths.
+ */
 .path {
   stroke-dasharray: 1000;
   stroke-dashoffset: 0;
@@ -27,6 +46,10 @@ svg {
   }
 }
 
+/**
+ * Text Style
+ * Defines the style for text elements within the template.
+ */
 p {
   text-align: center;
   margin: 20px 0 60px;
@@ -36,6 +59,10 @@ p {
   }
 }
 
+/**
+ * Keyframes for Path Animation
+ * Defines the keyframes for path animations.
+ */
 @-webkit-keyframes dash {
   0% {
     stroke-dashoffset: 1000;
@@ -54,6 +81,10 @@ p {
   }
 }
 
+/**
+ * Keyframes for Check Animation
+ * Defines the keyframes for check animation.
+ */
 @-webkit-keyframes dash-check {
   0% {
     stroke-dashoffset: -100;
