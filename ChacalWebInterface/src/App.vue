@@ -7,10 +7,11 @@
     <div class="buttonAndSpinner">
       <ButtonConfirm :class="{ 'visible': !downloadingFlag, 'noneVisible': downloadingFlag || downloadSuceed || downloadError}" textButton="Télécharger" @confirmClicked="handleConfirmClicked" />
       <Spinner v-if="downloadingFlag"/>
-      <Sucess :class="{ 'visible': downloadSuceed, 'noneVisible': !downloadSuceed }"/>
+      <Sucess :class="{ 'visible': downloadSuceed, 'noneVisible': !downloadSuceed }" />
       <Error :class="{ 'visible': downloadError, 'noneVisible': !downloadError }"/>
     </div>
     <ZoneLogInfos :logMessages="logMessages" />
+    <p>Si vous souhaitez télécharger un nouveau fichier, veuillez actualiser la page</p>
   </div>
 </template>
 
