@@ -107,7 +107,7 @@ def sortFiles(pathOutputDirDeluge, pathNewDirMedia, queueJson):
             logger.error(f"[ERR] : Une erreur s'est produite lors du tri des fichiers : {str(e)}")
 
 def signalHandler(sig, frame):
-    print('[INFOS] : Exit ...')
+    logger.info('[INFOS] : Exit ...')
     os._exit(1)
 
 if __name__ == "__main__":

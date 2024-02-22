@@ -4,7 +4,7 @@ def setup_logger():
     """
     Configure le système de journalisation.
     """
-    logging.basicConfig(filename='app.log', level=logging.INFO, encoding='utf-8')
+    logging.basicConfig(filename='fileManagement.log', level=logging.INFO, encoding='utf-8')
 
 # Appeler la fonction de configuration du logger dès l'importation du module
 setup_logger()
