@@ -84,7 +84,7 @@ const handleFileSelected = (file) => {
  */
 const checkFileFormat = (file) => {
   const fileExtension = file.name.split('.').pop();
-  return fileExtension.toLowerCase() !== acceptedFormat.toLowerCase();
+  return fileExtension.toLowerCase() === acceptedFormat.toLowerCase();
 };
 
 /**
