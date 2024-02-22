@@ -3,7 +3,7 @@ const multer = require('multer');
 const fs = require('fs');
 const path = require('path');
 const cors = require('cors');
-const { ref } = require('vue');
+const WebSocket = require('ws');
 
 // Définir les dossiers de destination
 const uploadDestination = 'uploadsTorrent/';
@@ -15,6 +15,8 @@ const upload = multer({ dest: uploadDestination });
 
 // Definir le port d'écoute
 const port = process.env.PORT || 3000;
+
+const wss = new WebSocket.Server({ port: 8080 });
 
 // Configuration du CORS
 app.use(cors());
@@ -79,4 +81,20 @@ function writeJSONToFile(jsonData) {
 
 app.listen(port, () => {
   console.log(`Serveur HTTP démarré sur le port ${port}`);
+});
+
+// Ajout de lecture du fichier .log
+const logFilePath = path.join(__dirname, '../../fileManagement.log');
+fs.watchFile(logFilePath , (curr, prev) => {
+  fs.readFile(logFilePath , 'utf8', (err, data) => {
+    if (err) {
+      console.error('Erreur lors de la lecture du fichier de log :', err);
+      return;
+    }
+    wss.clients.forEach((client) => {
+      if (client.readyState === WebSocket.OPEN) {
+        client.send(data);
+      }
+    });
+  });
 });

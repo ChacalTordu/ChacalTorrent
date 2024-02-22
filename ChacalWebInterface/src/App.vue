@@ -10,6 +10,7 @@
       <Sucess :class="{ 'visible': downloadSuceed, 'noneVisible': !downloadSuceed }"/>
       <Error :class="{ 'visible': downloadError, 'noneVisible': !downloadError }"/>
     </div>
+    <ZoneLogInfos :logMessages="logMessages" />
   </div>
 </template>
 
@@ -21,6 +22,7 @@
   import Spinner from "./components/animation/Spinner.vue"
   import Sucess from "./components/animation/Sucess.vue"
   import Error from "./components/animation/Error.vue"
+  import ZoneLogInfos from "./components/ZoneLogInfos.vue"
 
   import axios from 'axios'
   import { ref } from 'vue'
@@ -44,6 +46,9 @@
   const mediaMultipleSeason = ref(false)
   const mediaAlreadyExist = ref(false)
   const pathMedia = ref('')
+
+  const ws = new WebSocket('ws://localhost:8080');
+  const logMessages = ref([]);
 
   // Envoi le JSON et le fichier torrent au serveur
   async function sendDataToServer() {
@@ -168,6 +173,11 @@
       }, durations[i]);
     }
   }
+
+  ws.onmessage = (event) => {
+  logMessages.value.push(event.data);
+  };
+
 </script>
 
 <style scoped>
