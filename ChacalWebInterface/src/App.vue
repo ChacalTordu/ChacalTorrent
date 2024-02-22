@@ -175,8 +175,8 @@
   }
 
   ws.onmessage = (event) => {
-  logMessages.value.push(event.data);
-  };
+  logMessages.value = [event.data]; // Remplacer le contenu actuel par le nouveau message
+};
 
 </script>
 
