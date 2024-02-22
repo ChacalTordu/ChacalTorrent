@@ -1,10 +1,18 @@
+<!--
+ZoneDropFile.vue - File Drop Zone Component
+
+This component defines a drop zone for uploading files. It allows users to drag and drop files or select them using a button.
+
+Author: ChacalTordu
+-->
+
 <template>
   <div 
     @dragenter.prevent="handleDragEnter"
     @dragleave.prevent="handleDragLeave"
     @dragover.prevent
     @drop.prevent="handleDrop"
-    :class="{ 'activeDropzone': active , 'hasFile': hasFile, 'blink': isBlinking}"
+    :class="{'activeDropzone': active , 'hasFile': hasFile}"
     class="dropzone">
     <span v-if="!hasFile">Drag or Drop File</span>
     <span v-if="!hasFile">OR</span>
@@ -15,95 +23,89 @@
 </template>
 
 <script setup>
-import ButtonSelectFile from './button/ButtonSelectFile.vue'
-import ButtonAbort from './button/ButtonAbort.vue'
-import { ref, defineProps, defineEmits, watch } from 'vue'
-import axios from 'axios'
+import ButtonSelectFile from './button/ButtonSelectFile.vue';
+import ButtonAbort from './button/ButtonAbort.vue';
+import { ref } from 'vue';
+
+const acceptedFormat = ".torrent";
 
 const active = ref(false);
 const hasFile = ref(false);
-const fileName = ref('')
-const props = defineProps({
-  confirmClicked: Boolean
-});
-const isBlinking = ref(false);
-const emits = defineEmits(['resetButton','fileChosen']) 
+const fileName = ref('');
 
+const emits = defineEmits(['resetButton','fileChosen','abordClicked']);
+
+/**
+ * Handles drag enter event
+ */
 const handleDragEnter = (event) => {
   event.preventDefault();
   active.value = true;
 };
 
+/**
+ * Handles drag leave event
+ */
 const handleDragLeave = () => {
   active.value = false;
 };
 
+/**
+ * Handles file drop event
+ */
 const handleDrop = (event) => {
-  event.preventDefault()
-  active.value = false
-  const files = event.dataTransfer.files
-  if (checkFileFormat(files[0])) {
-    alert(`Veuillez sélectionner un fichier ${acceptedFormat}.`)
+  event.preventDefault();
+  active.value = false;
+  const files = event.dataTransfer.files;
+  if (files.length !== 1) {
+    alert("Veuillez ne déposer qu'un seul fichier.");
+  } else if (!checkFileFormat(files[0])) {
+    alert(`Veuillez sélectionner un fichier ${acceptedFormat}.`);
   } else {
     handleFileSelected(files[0]);
   }
 };
 
+/**
+ * Handles file selected event
+ */
 const handleFileSelected = (file) => {
-  hasFile.value = true
-  fileName.value = file.name
-  emits('fileChosen', file)
-  uploadFile(file)
+  if (checkFileFormat(file)) {
+    alert(`Veuillez sélectionner un fichier ${acceptedFormat}.`);
+  } else {
+    hasFile.value = true;
+    fileName.value = file.name;
+    emits('fileChosen', file);
+  }
 };
 
+/**
+ * Checks file format
+ */
 const checkFileFormat = (file) => {
-  return file.type !== acceptedFormat
+  const fileExtension = file.name.split('.').pop();
+  return fileExtension.toLowerCase() !== acceptedFormat.toLowerCase();
 };
 
+/**
+ * Handles abort event
+ */
 const handleAbort = () => {
   try {
-    hasFile.value = false
-    fileName.value = ''
-    console.log("Fichier annulé avec succès")
+    hasFile.value = false;
+    fileName.value = '';
+    emits('abordClicked');
+    console.log("Fichier annulé avec succès");
   } catch (error) {
     console.error("Une erreur est survenue:", error);
   }
 };
-
-const uploadFile = (file) => {
-  const formData = new FormData();
-  formData.append('file', file);
-
-  axios.post('http://localhost:3000/uploadFile', formData)
-    .then(response => {
-      console.log('Fichier téléchargé avec succès sur le serveur !');
-    })
-    .catch(error => {
-      console.error('Erreur lors du téléchargement du fichier sur le serveur :', error);
-    });
-}
-
-function blinkdiv() {
-  isBlinking.value = true;
-  const durations = [200, 400, 600, 800, 1000];
-  for (let i = 0; i < durations.length; i++) {
-    setTimeout(() => {
-      isBlinking.value = !isBlinking.value;
-    }, durations[i]);
-  }
-}
-
-watch(() => props.confirmClicked, () => {
-  if (props.confirmClicked == true) {
-    if(hasFile.value == false){
-      blinkdiv()
-      emits('resetButton')
-    }
-  }
-});
 </script>
 
 <style scoped>
+/**
+ * Dropzone Styles
+ */
 .dropzone {
   display: flex;
   flex-direction: column;
@@ -127,16 +129,25 @@ watch(() => props.confirmClicked, () => {
   margin-bottom: 10px;
 }
 
+/**
+ * Active Dropzone Styles
+ */
 .activeDropzone {
   background-color: #f0f0f0;
 }
 
+/**
+ * File Present Styles
+ */
 .hasFile {
   border-style: solid;
 }
 
+/**
+ * Blinking Effect Styles
+ */
 .blink {
-    outline: 2px solid var(--red-color-4); 
-    border: none;
-  }
+  outline: 2px solid var(--red-color-4); 
+  border: none;
+}
 </style>

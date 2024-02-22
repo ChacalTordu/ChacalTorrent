@@ -1,3 +1,12 @@
+<!--
+ButtonAbort.vue - Abort Button Component
+
+This component defines a button used for aborting operations. It emits an 'abort' event when clicked.
+
+Author: ChacalTordu
+
+-->
+
 <template>
     <div>
         <button @click="abort" class="myButton">{{ textButton }}</button>
@@ -10,14 +19,25 @@ import { defineProps, defineEmits } from 'vue';
 const props = defineProps({ textButton: String });
 const emit = defineEmits();
 
+/**
+ * Aborts the operation
+ * Emits 'abort' event when clicked
+ */
 const abort = () => {
     emit('abort');
 };
 </script>
   
 <style scoped>
+/**
+ * Button Styles
+ * Defines styles for the abort button.
+ */
 .myButton {
-    margin-top: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 150px;
     padding: 10px 20px;
     font-size: 16px;
     background-color: var(--red-color-4);
@@ -28,6 +48,10 @@ const abort = () => {
     transition: background-color 0.3s ease;
 }
 
+/**
+ * Button Hover Effect
+ * Defines hover effect for the abort button.
+ */
 .myButton:hover {
     background-color:  var(--red-color-5);
 }

@@ -30,5 +30,15 @@ coverage
 *.tsbuildinfo
 
 torrentFiles/
-serverBack/uploadsJSON/*
-serverBack/uploadsTorrent/*
+ChacalWebInterface/serverBack/uploadsJSON/*
+ChacalWebInterface/serverBack/uploadsTorrent/*
+
+ChacalFileManagement/config/
+
+inputDirTorrentDownloader/*
+outputDirTorrentDownloader/*
+
+ChacalFileManagement/fileManagement.log
+ChacalFileManagement/__pycache__/*
+ChacalFileManagement/media/
+ChacalFileManagement/config/*

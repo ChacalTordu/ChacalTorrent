@@ -1,84 +1,142 @@
 import os
-import shutil
-import time
-from watchdog.observers import Observer
-from watchdog.events import FileSystemEventHandler
+import json
+import signal
+import multiprocessing
 
-processed_files = set()
+from logger_config import logger
+import torrentAndJsonManagement
+import fileSorting
 
-def afficher_contenu():
-    print("Choisissez le type de contenu:")
-    print("1. Film")
-    print("2. Série")
-    print("3. AnimeJap")
-    print("4. Dessin Animé")
+def loadPaths(jsonFile):
+    """
+    Charge les chemins à partir du fichier JSON spécifié.
 
-def demander_info():
-    afficher_contenu()
+    Args:
+        jsonFile (str): Chemin vers le fichier JSON contenant les chemins.
+
+    Returns:
+        tuple: Un tuple contenant les chemins (pathSourceDirJson, pathSourceDirTorrent, newDirMedia, pathInputDirDeluge, pathOutputDirDeluge, pathNewDirMedia, error)
+    """
     try:
-        choix = int(input("Entrez le numéro correspondant au type de contenu: "))
-        if choix not in [1, 2, 3, 4]:
-            raise ValueError("Choix invalide.")
-    except ValueError as e:
-        print(f"Erreur: {e}")
-        return demander_info()
+        if not os.path.exists(jsonFile):
+            logger.error(f"Erreur: Le fichier {jsonFile} n'existe pas.")
+            return None, None, None, None, None, None, f"Erreur: Le fichier {jsonFile} n'existe pas."
+        else:
+            with open(jsonFile, 'r') as f:
+                data = json.load(f)
+            if data is not None:
+                pathSourceDirJson = data.get('sourceDirJson')
+                pathSourceDirTorrent = data.get('sourceDirTorrent')
+                pathInputDirDeluge = data.get('inputDirDeluge')
+                pathOutputDirDeluge = data.get('outputDirDeluge')
+                pathNewDirMedia = data.get('mediaDir')
+                return pathSourceDirJson, pathSourceDirTorrent, pathInputDirDeluge, pathOutputDirDeluge, pathNewDirMedia, None
+            else:
+                logger.error(f"Erreur: Le fichier {jsonFile} est vide.")
+                return None, None, None, None, None, f"Erreur: Le fichier {jsonFile} est vide."
+    except FileNotFoundError:
+        logger.error(f"Erreur: Le fichier {jsonFile} n'existe pas.")
+        return None, None, None, None, None, f"Erreur: Le fichier {jsonFile} n'existe pas."
+    except json.JSONDecodeError:
+        logger.error(f"Erreur: Impossible de décoder le fichier JSON {jsonFile}.")
+        return None, None, None, None, None, f"Erreur: Impossible de décoder le fichier JSON {jsonFile}."
+    except Exception as e:
+        logger.error(f"Une erreur s'est produite lors du chargement des chemins à partir du fichier JSON : {str(e)}")
+        return None, None, None, None, None, f"Une erreur s'est produite lors du chargement des chemins à partir du fichier JSON : {str(e)}"
 
-    type_contenu = {
-        1: 'film',
-        2: 'série',
-        3: 'animejap',
-        4: 'dessin animé'
-    }[choix]
+def manageTorrentAndJson(pathSourceDirJson, pathSourceDirTorrent, pathInputDirDeluge, queueJson):
+    """
+    Gère les fichiers torrent et JSON.
+    """
+    while True:
+        try:
+            fileJson, error = torrentAndJsonManagement.torrentAndJsonManagementMain(pathSourceDirJson, pathSourceDirTorrent, pathInputDirDeluge)
+            if error:
+                if error != "No torrent file found.":
+                    logger.error(f"[ERR] : Une erreur s'est produite lors de la gestion du torrent et du JSON : {error}")
+            elif fileJson is not None:  # Si fileJson est None, aucun fichier torrent n'a été trouvé
+                logger.info(f"[OK] : Téléchargement en cours ... ")
+                queueJson.put(fileJson)  # Ajouter le fileJson dans la file d'attente
+        except Exception as e:
+            print(f"Une erreur s'est produite lors de la gestion du torrent et du JSON : {str(e)}")
 
-    titre = input("Entrez le titre: ")
+def initSortFiles(pathNewDirMedia):
+    """
+    Crée un fichier appelé 'listFileSought' dans le répertoire spécifié s'il n'existe pas déjà.
 
-    if type_contenu in ['série', 'animejap']:
-        saison = int(input("Entrez le numéro de saison (s'il y en a plusieurs, sinon 1): "))
-        sous_dossier = f"Saison {saison}" if saison > 1 else ""
-    else:
-        sous_dossier = ""
+    Args:
+        pathNewDirMedia (str): Le chemin du répertoire où créer le fichier.
 
-    return type_contenu, titre, sous_dossier
+    Returns:
+        str: Le chemin complet du fichier créé ou existant.
+    """
+    file_path = os.path.join(pathNewDirMedia, "listFileSought") # Construire le chemin complet du fichier
 
-def organiser_fichiers(source_folder, destination_folder, type_contenu, titre, sous_dossier=""):
-    # Crée la structure d'arborescence souhaitée
-    if type_contenu == 'film':
-        destination_path = os.path.join(destination_folder, "Films", titre)
-    else:
-        destination_path = os.path.join(destination_folder, type_contenu.capitalize(), titre, sous_dossier)
+    # Vérifier si le fichier existe déjà
+    if os.path.exists(file_path):
+        logger.info(f"[INFOS] : Le fichier 'listFileSought' existe déjà à l'emplacement : {file_path}")
+        return file_path  # Retourner le chemin complet du fichier existant
 
-    os.makedirs(destination_path, exist_ok=True)
+    try:
+        # S'il n'existe pas, créer le fichier en mode écriture et le fermer immédiatement pour le créer
+        with open(file_path, 'w') as file:
+            pass
+        
+        logger.info(f"[OK] : Le fichier 'listFileSought' a été créé avec succès à l'emplacement : {file_path}")
+        return file_path  # Retourner le chemin complet du fichier créé
+    except Exception as e:
+        raise Exception(f"Erreur lors de la création du fichier 'listFileSought': {str(e)}")
 
-    # Déplace les fichiers vers le dossier de destination
-    files = [f for f in os.listdir(source_folder) if os.path.isfile(os.path.join(source_folder, f)) and f not in processed_files]
-    for file in files:
-        processed_files.add(file)
-        source_path = os.path.join(source_folder, file)
-        shutil.move(source_path, destination_path)
-        print(f'{file} déplacé vers {destination_path}')
+def sortFiles(pathOutputDirDeluge, pathNewDirMedia, queueJson):
+    """
+    Trie les fichiers.
+    """
+    file_listNameFileSought = initSortFiles(pathNewDirMedia)
+    while True:
+        try:
+            try :
+                fileJson = queueJson.get_nowait()  # Récupérer le fileJson de la file d'attente
+            except :
+                fileJson = None
+            nameMediaDownloaded = fileSorting.fileSortingMain(pathOutputDirDeluge, pathNewDirMedia, fileJson, file_listNameFileSought)
+            if nameMediaDownloaded is not None:
+                logger.info(f"[OK] : Fichier {nameMediaDownloaded} téléchargé et trié avec succès")
+        except ValueError as e:
+            logger.error(f"[ERR] : Value Error {str(e)}")
+        except Exception as e:
+            logger.error(f"[ERR] : Une erreur s'est produite lors du tri des fichiers : {str(e)}")
 
-class MyHandler(FileSystemEventHandler):
-    def on_created(self, event):
-        if event.is_directory:
-            return
-        print(f'Nouveau fichier créé: {event.src_path}')
-        type_contenu, titre, sous_dossier = demander_info()
-        organiser_fichiers(source_folder, destination_folder, type_contenu, titre, sous_dossier)
+def signalHandler(sig, frame):
+    logger.info('[INFOS] : Exit ...')
+    os._exit(1)
 
 if __name__ == "__main__":
-    source_folder = '/mnt/c/Users/lle-brun/Documents/LEOLEBRUN/PROJETS/scrypt_RangermentAutoDossier/test/notDone'
-    destination_folder = '/mnt/c/Users/lle-brun/Documents/LEOLEBRUN/PROJETS/scrypt_RangermentAutoDossier/test/Done'
-
-    # Surveillance du dossier pour détecter de nouveaux fichiers
-    event_handler = MyHandler()
-    observer = Observer()
-    observer.schedule(event_handler, path=source_folder, recursive=False)
-    observer.start()
-
     try:
-        while True:
-            time.sleep(1)
-    except KeyboardInterrupt:
-        observer.stop()
+        # Charge les chemins configurés dans le fichier path.json dans le dossier config
+        pathSourceDirJson, pathSourceDirTorrent, pathInputDirDeluge, pathOutputDirDeluge, pathNewDirMedia, error = loadPaths(os.path.join('config', 'path.json'))  
+        if error:
+            logger.error(f"Une erreur s'est produite lors du chargement des chemins dans le fichier path.json dans le dossier config/ : {error}")
+        else:
+            logger.info("Chargement des chemins réalisé avec succès")  # Utilisation du logger pour enregistrer les informations
 
-    observer.join()
+            # Création de la file d'attente partagée
+            queueJson = multiprocessing.Queue()
+
+            # Création des processus
+            torrentProcess = multiprocessing.Process(target=manageTorrentAndJson, args=(pathSourceDirJson, pathSourceDirTorrent, pathInputDirDeluge, queueJson))
+            sortingProcess = multiprocessing.Process(target=sortFiles, args=(pathOutputDirDeluge, pathNewDirMedia, queueJson))
+
+            # Gestion de l'interruption clavier
+            signal.signal(signal.SIGINT, signalHandler)
+
+            # Démarrage des processus
+            torrentProcess.start()
+            sortingProcess.start()
+
+            # Attente que les processus se terminent
+            torrentProcess.join()
+            sortingProcess.join()
+                
+    except Exception as e:
+        logger.error(f"Une erreur s'est produite dans le main.py: {str(e)}")  # Utilisation du logger pour enregistrer les erreurs
+        print(f"Une erreur s'est produite dans le main.py: {str(e)}")
