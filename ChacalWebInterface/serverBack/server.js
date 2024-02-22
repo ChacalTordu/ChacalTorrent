@@ -3,18 +3,22 @@ const multer = require('multer');
 const fs = require('fs');
 const path = require('path');
 const cors = require('cors');
-const { ref } = require('vue');
+const WebSocket = require('ws');
+const readline = require('readline');
 
 // Définir les dossiers de destination
 const uploadDestination = 'uploadsTorrent/';
 const jsonDestination = 'uploadsJSON/';
-let fileName = ''; // Utiliser let au lieu de const car la valeur sera modifiée
+let fileName = '';
 
 const app = express();
 const upload = multer({ dest: uploadDestination });
 
 // Definir le port d'écoute
 const port = process.env.PORT || 3000;
+
+const wss = new WebSocket.Server({ port: 8080 });
+const nbLinesOfLog = 5
 
 // Configuration du CORS
 app.use(cors());
@@ -80,3 +84,37 @@ function writeJSONToFile(jsonData) {
 app.listen(port, () => {
   console.log(`Serveur HTTP démarré sur le port ${port}`);
 });
+
+// Lire les dernières lignes du fichier .log
+function readLastLines(numLines) {
+  const logFilePath = path.join(__dirname, '../../fileManagement.log');
+  const lines = [];
+  const rl = readline.createInterface({
+    input: fs.createReadStream(logFilePath),
+    crlfDelay: Infinity
+  });
+
+  rl.on('line', (line) => {
+    lines.push(line);
+    if (lines.length > numLines) {
+      lines.shift(); // Retirer la première ligne si la liste dépasse le nombre de lignes demandé
+    }
+  });
+
+  rl.on('close', () => {
+    wss.clients.forEach((client) => {
+      if (client.readyState === WebSocket.OPEN) {
+        client.send(lines.join('\n')); // Envoyer les dernières lignes aux clients WebSocket
+      }
+    });
+  });
+}
+
+// Ajout de lecture du fichier .log
+const logFilePath = path.join(__dirname, '../../fileManagement.log');
+fs.watchFile(logFilePath, (curr, prev) => {
+  readLastLines(nbLinesOfLog); // Lire à nouveau les dix dernières lignes lorsque le fichier .log est modifié
+});
+
+// Lire les dernières lignes au démarrage du serveur
+readLastLines(nbLinesOfLog);

@@ -7,9 +7,11 @@
     <div class="buttonAndSpinner">
       <ButtonConfirm :class="{ 'visible': !downloadingFlag, 'noneVisible': downloadingFlag || downloadSuceed || downloadError}" textButton="Télécharger" @confirmClicked="handleConfirmClicked" />
       <Spinner v-if="downloadingFlag"/>
-      <Sucess :class="{ 'visible': downloadSuceed, 'noneVisible': !downloadSuceed }"/>
+      <Sucess :class="{ 'visible': downloadSuceed, 'noneVisible': !downloadSuceed }" />
       <Error :class="{ 'visible': downloadError, 'noneVisible': !downloadError }"/>
     </div>
+    <ZoneLogInfos :logMessages="logMessages" />
+    <p>Si vous souhaitez télécharger un nouveau fichier, veuillez actualiser la page</p>
   </div>
 </template>
 
@@ -21,6 +23,7 @@
   import Spinner from "./components/animation/Spinner.vue"
   import Sucess from "./components/animation/Sucess.vue"
   import Error from "./components/animation/Error.vue"
+  import ZoneLogInfos from "./components/ZoneLogInfos.vue"
 
   import axios from 'axios'
   import { ref } from 'vue'
@@ -44,6 +47,9 @@
   const mediaMultipleSeason = ref(false)
   const mediaAlreadyExist = ref(false)
   const pathMedia = ref('')
+
+  const ws = new WebSocket('ws://localhost:8080');
+  const logMessages = ref([]);
 
   // Envoi le JSON et le fichier torrent au serveur
   async function sendDataToServer() {
@@ -71,7 +77,7 @@
       formData.set('file', fileTorrent.value);
       // Flag à vrai
       torrentValid.value = true;
-      console.log("Torrent sauvegardé correctement")
+      // console.log("Torrent sauvegardé correctement")
     } catch(error) {
       console.error('Erreur lors de la sauvegarde des données du fichier .torrent:', error.message);
     }
@@ -85,7 +91,6 @@
       pathMedia.value = savePathMedia.value;
       if (formattingJsonFile()) {
         dataValid.value = true;
-        console.log("flag data True")
       }
     } catch (error) {
       console.error('Erreur lors de la sauvegarde des données du média (json):', error.message);
@@ -101,7 +106,7 @@
           "NameMedia": pathMedia.value,
         };
         jsonMediaInfos = JSON.stringify(mediaInfos);
-        console.log("JSON formaté :", jsonMediaInfos);
+        // console.log("JSON formaté :", jsonMediaInfos);
         return true
     }catch(error){
       console.error('Erreur lors de l attribution des données du média (json):', error.message);
@@ -169,6 +174,11 @@
       }, durations[i]);
     }
   }
+
+  ws.onmessage = (event) => {
+  logMessages.value = [event.data]; // Remplacer le contenu actuel par le nouveau message
+};
+
 </script>
 
 <style scoped>
