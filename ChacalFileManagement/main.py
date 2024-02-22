@@ -2,29 +2,9 @@ import os
 import json
 import signal
 import multiprocessing
-import logging
 
 import torrentAndJsonManagement
 import fileSorting
-
-def configure_logging():
-    """
-    Configure le logging pour écrire les messages dans un fichier.
-    """
-    # Création d'un logger
-    logger = logging.getLogger()
-    logger.setLevel(logging.INFO)
-
-    # Création d'un formateur pour formater les messages
-    formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
-
-    # Création d'un handler pour écrire dans un fichier
-    file_handler = logging.FileHandler('fileManagement.log')
-    file_handler.setLevel(logging.INFO)
-    file_handler.setFormatter(formatter)
-
-    # Ajout du handler au logger
-    logger.addHandler(file_handler)
 
 def loadPaths(jsonFile):
     """
@@ -38,7 +18,7 @@ def loadPaths(jsonFile):
     """
     try:
         if not os.path.exists(jsonFile):
-            logging.error(f"Le fichier {jsonFile} n'existe pas.")
+            print(f"Erreur: Le fichier {jsonFile} n'existe pas.")
             return None, None, None, None, None, None, f"Erreur: Le fichier {jsonFile} n'existe pas."
         else:
             with open(jsonFile, 'r') as f:
@@ -51,16 +31,16 @@ def loadPaths(jsonFile):
                 pathNewDirMedia = data.get('mediaDir')
                 return pathSourceDirJson, pathSourceDirTorrent, pathInputDirDeluge, pathOutputDirDeluge, pathNewDirMedia, None
             else:
-                logging.error(f"Le fichier {jsonFile} est vide.")
+                print(f"Erreur: Le fichier {jsonFile} est vide.")
                 return None, None, None, None, None, f"Erreur: Le fichier {jsonFile} est vide."
     except FileNotFoundError:
-        logging.error(f"Le fichier {jsonFile} n'existe pas.")
+        print(f"Erreur: Le fichier {jsonFile} n'existe pas.")
         return None, None, None, None, None, f"Erreur: Le fichier {jsonFile} n'existe pas."
     except json.JSONDecodeError:
-        logging.error(f"Impossible de décoder le fichier JSON {jsonFile}.")
+        print(f"Erreur: Impossible de décoder le fichier JSON {jsonFile}.")
         return None, None, None, None, None, f"Erreur: Impossible de décoder le fichier JSON {jsonFile}."
     except Exception as e:
-        logging.error(f"Une erreur s'est produite lors du chargement des chemins à partir du fichier JSON : {str(e)}")
+        print(f"Une erreur s'est produite lors du chargement des chemins à partir du fichier JSON : {str(e)}")
         return None, None, None, None, None, f"Une erreur s'est produite lors du chargement des chemins à partir du fichier JSON : {str(e)}"
 
 def manageTorrentAndJson(pathSourceDirJson, pathSourceDirTorrent, pathInputDirDeluge, queueJson):
@@ -72,12 +52,12 @@ def manageTorrentAndJson(pathSourceDirJson, pathSourceDirTorrent, pathInputDirDe
             fileJson, error = torrentAndJsonManagement.torrentAndJsonManagementMain(pathSourceDirJson, pathSourceDirTorrent, pathInputDirDeluge)
             if error:
                 if error != "No torrent file found.":
-                    logging.error(f"Une erreur s'est produite lors de la gestion du torrent et du JSON : {error}")
+                    print(f"[ERR] : Une erreur s'est produite lors de la gestion du torrent et du JSON : {error}")
             elif fileJson is not None:  # Si fileJson est None, aucun fichier torrent n'a été trouvé
-                logging.info("Téléchargement en cours ...")
+                print(f"[OK] : Téléchargement en cours ... ")
                 queueJson.put(fileJson)  # Ajouter le fileJson dans la file d'attente
         except Exception as e:
-            logging.error(f"Une erreur s'est produite lors de la gestion du torrent et du JSON : {str(e)}")
+            print(f"Une erreur s'est produite lors de la gestion du torrent et du JSON : {str(e)}")
 
 def initSortFiles(pathNewDirMedia):
     """
@@ -93,7 +73,7 @@ def initSortFiles(pathNewDirMedia):
 
     # Vérifier si le fichier existe déjà
     if os.path.exists(file_path):
-        logging.info(f"Le fichier 'listFileSought' existe déjà à l'emplacement : {file_path}")
+        print(f"[INFOS] : Le fichier 'listFileSought' existe déjà à l'emplacement : {file_path}")
         return file_path  # Retourner le chemin complet du fichier existant
 
     try:
@@ -101,7 +81,7 @@ def initSortFiles(pathNewDirMedia):
         with open(file_path, 'w') as file:
             pass
         
-        logging.info(f"Le fichier 'listFileSought' a été créé avec succès à l'emplacement : {file_path}")
+        print(f"[OK] : Le fichier 'listFileSought' a été créé avec succès à l'emplacement : {file_path}")
         return file_path  # Retourner le chemin complet du fichier créé
     except Exception as e:
         raise Exception(f"Erreur lors de la création du fichier 'listFileSought': {str(e)}")
@@ -119,26 +99,24 @@ def sortFiles(pathOutputDirDeluge, pathNewDirMedia, queueJson):
                 fileJson = None
             nameMediaDownloaded = fileSorting.fileSortingMain(pathOutputDirDeluge, pathNewDirMedia, fileJson, file_listNameFileSought)
             if nameMediaDownloaded is not None:
-                logging.info(f"Fichier {nameMediaDownloaded} téléchargé et trié avec succès")
+                print(f"[OK] : Fichier {nameMediaDownloaded} téléchargé et trié avec succès")
         except ValueError as e:
-            logging.error(f"Value Error {str(e)}")
+            print(f"[ERR] : Value Error {str(e)}")
         except Exception as e:
-            logging.error(f"Une erreur s'est produite lors du tri des fichiers : {str(e)}")
+            print(f"[ERR] : Une erreur s'est produite lors du tri des fichiers : {str(e)}")
 
 def signalHandler(sig, frame):
-    logging.info('Exit ...')
+    print('[INFOS] : Exit ...')
     os._exit(1)
 
 if __name__ == "__main__":
     try:
-        configure_logging()  # Configurer le logging
-
         # Charge les chemins configurés dans le fichier path.json dans le dossier config
         pathSourceDirJson, pathSourceDirTorrent, pathInputDirDeluge, pathOutputDirDeluge, pathNewDirMedia, error = loadPaths(os.path.join('config', 'path.json'))  
         if error:
-            logging.error(f"Une erreur s'est produite lors du chargement des chemins dans le fichier path.json dans le dossier config/ : {error}")
+            print(f"[ERR] : Une erreur s'est produite lors du chargement des chemins dans le fichier path.json dans le dossier config/ : {error}")
         else:
-            logging.info("Chargement des chemins réalisé avec succès")
+            print("[OK] : Chargement des chemins réalisé avec succès")
 
             # Création de la file d'attente partagée
             queueJson = multiprocessing.Queue()
@@ -159,4 +137,4 @@ if __name__ == "__main__":
             sortingProcess.join()
                 
     except Exception as e:
-        logging.error(f"Une erreur s'est produite dans le main.py: {str(e)}")
+        print(f"Une erreur s'est produite dans le main.py: {str(e)}")
