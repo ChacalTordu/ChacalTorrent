@@ -2,6 +2,7 @@ import os
 import json
 import signal
 import multiprocessing
+import logging
 
 from logger_config import logger
 import torrentAndJsonManagement
@@ -17,6 +18,8 @@ def loadPaths(jsonFile):
     Returns:
         tuple: Un tuple contenant les chemins (pathSourceDirJson, pathSourceDirTorrent, newDirMedia, pathInputDirDeluge, pathOutputDirDeluge, pathNewDirMedia, error)
     """
+    logger = logging.getLogger(__name__)
+
     try:
         if not os.path.exists(jsonFile):
             logger.error(f"Erreur: Le fichier {jsonFile} n'existe pas.")
@@ -24,12 +27,18 @@ def loadPaths(jsonFile):
         else:
             with open(jsonFile, 'r') as f:
                 data = json.load(f)
+            
             if data is not None:
                 pathSourceDirJson = data.get('sourceDirJson')
                 pathSourceDirTorrent = data.get('sourceDirTorrent')
                 pathInputDirDeluge = data.get('inputDirDeluge')
                 pathOutputDirDeluge = data.get('outputDirDeluge')
                 pathNewDirMedia = data.get('mediaDir')
+
+                # Créer le dossier s'il n'existe pas
+                if pathNewDirMedia and not os.path.exists(pathNewDirMedia):
+                    os.makedirs(pathNewDirMedia)
+
                 return pathSourceDirJson, pathSourceDirTorrent, pathInputDirDeluge, pathOutputDirDeluge, pathNewDirMedia, None
             else:
                 logger.error(f"Erreur: Le fichier {jsonFile} est vide.")
