@@ -12,10 +12,9 @@ Author: ChacalTordu
     @dragleave.prevent="handleDragLeave"
     @dragover.prevent
     @drop.prevent="handleDrop"
-    :class="{'activeDropzone': active , 'hasFile': hasFile}"
-    class="dropzone">
-    <span v-if="!hasFile">Drag or Drop File</span>
-    <span v-if="!hasFile">OR</span>
+    class="dropzone"
+    :class="{'activeDropzone': active , 'hasFile': hasFile}">
+    <span>Drag or Drop or Select File</span>
     <ButtonSelectFile v-if="!hasFile" fileFormat=".torrent" @fileSelected="handleFileSelected"/>
     <span v-if="hasFile">{{ fileName }}</span>
     <ButtonAbort v-if="hasFile" textButton="Annuler" @abort="handleAbort"/>
@@ -23,8 +22,8 @@ Author: ChacalTordu
 </template>
 
 <script setup>
-import ButtonSelectFile from './button/ButtonSelectFile.vue';
-import ButtonAbort from './button/ButtonAbort.vue';
+import ButtonSelectFile from '../button/ButtonSelectFile.vue';
+import ButtonAbort from '../button/ButtonAbort.vue';
 import { ref } from 'vue';
 
 const acceptedFormat = ".torrent";
@@ -108,25 +107,19 @@ const handleAbort = () => {
  */
 .dropzone {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   justify-content: center;
   align-items: center;
-  width: 400px;
-  height: 200px;
-  border: 2px dashed #ccc;
-  border-radius: 8px;
   position: relative;
   overflow: hidden;
-  box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.2);
   text-align: center;
   font-size: 16px;
   color: #666;
   padding: 10px;
+  border: 2px dashed #ccc;
   transition: background-color 0.3s ease-in-out;
-}
-
-.dropzone span {
-  margin-bottom: 10px;
+  gap: 15px;
+  border-radius: 10px;
 }
 
 /**
@@ -141,13 +134,5 @@ const handleAbort = () => {
  */
 .hasFile {
   border-style: solid;
-}
-
-/**
- * Blinking Effect Styles
- */
-.blink {
-  outline: 2px solid var(--red-color-4); 
-  border: none;
 }
 </style>

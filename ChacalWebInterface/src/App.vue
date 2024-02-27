@@ -8,22 +8,8 @@ Author: ChacalTordu
 
 <template>
   <div class="myApp">
-    <div class="twoZone">
-      <!-- Zone for dropping files -->
-      <ZoneDropFile :class="{ 'blink': isBlinking && !torrentValid }" @fileChosen="saveTorrent" @resetButton="resetButtonValue" @abordClicked="handleAbortZoneDropClicked"/>
-      <!-- Zone for displaying file information -->
-      <ZoneFileInfo :class="{ 'blink': isBlinking && !dataValid }" @saveMediaData="saveMediaInfo"  @resetButton="resetButtonValue" @abortClicked="handleAbortFileInfoClicked"/>
-    </div>
-    <div class="buttonAndSpinner">
-      <!-- Button for starting download -->
-      <ButtonConfirm :class="{ 'visible': !downloadingFlag, 'noneVisible': downloadingFlag || downloadSuceed || downloadError}" textButton="Télécharger" @confirmClicked="handleConfirmClicked" />
-      <!-- Spinner indicating download in progress -->
-      <Spinner v-if="downloadingFlag"/>
-      <!-- Success animation for successful download -->
-      <Sucess :class="{ 'visible': downloadSuceed, 'noneVisible': !downloadSuceed }" />
-      <!-- Error animation for download failure -->
-      <Error :class="{ 'visible': downloadError, 'noneVisible': !downloadError }"/>
-    </div>
+    <div class="title"><p>Chacal Torrent</p></div>
+    <cardTorrent />
     <!-- Component for displaying log information -->
     <ZoneLogInfos :logMessages="logMessages" />
     <!-- Information for refreshing page -->
@@ -32,13 +18,8 @@ Author: ChacalTordu
 </template>
 
 <script setup>
-import ZoneDropFile from "./components/ZoneDropFile.vue"
-import ZoneFileInfo from "./components/ZoneFileInfos.vue"
-import ButtonConfirm from "./components/button/ButtonConfirm.vue"
-import Spinner from "./components/animation/Spinner.vue"
-import Sucess from "./components/animation/Sucess.vue"
-import Error from "./components/animation/Error.vue"
-import ZoneLogInfos from "./components/ZoneLogInfos.vue"
+import cardTorrent from "./components/cardTorrent.vue";
+import ZoneLogInfos from "./components/zone/ZoneLogInfos.vue"
 
 import axios from 'axios'
 import { ref } from 'vue'
@@ -201,6 +182,16 @@ ws.onmessage = (event) => {
 </script>
 
 <style scoped>
+
+.title {
+  font-weight: bold;
+  font-size: 75px;
+  letter-spacing: 2px;
+  color: #333;
+  text-align: center;
+  padding: 20px 0;
+}
+
 /**
  * Styles for main application container
  */
@@ -219,7 +210,23 @@ ws.onmessage = (event) => {
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 30px;
+  gap: 100px;
+}
+
+.myDropZone, .myFileInfosZone {
+  width: 500px;           
+  height: 200px;          
+  border-radius: 30px;
+}
+
+.myDropZone {
+  border: 2px dashed #ccc;
+}
+
+.myFileInfosZone {        
+  background: #e0e0e0;                      
+  box-shadow: 15px 15px 30px #bebebe,
+             -15px -15px 30px #ffffff;
 }
 
 /**

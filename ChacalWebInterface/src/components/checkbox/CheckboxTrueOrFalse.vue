@@ -1,22 +1,8 @@
-<!--
-CheckboxTrueOrFalse.vue - Checkbox Component for True or False Options
-
-This component defines a checkbox with two options: "Oui" (Yes) and "Non" (No). It emits a 'checkboxSet' event with the selected option.
-
-Author: ChacalTordu
--->
-
 <template>
-  <div class="checkbox-container">
+  <div class="checkboxContainer">
     <div class="textCheckbox">{{ textCheckbox }}</div>
-    <div class="checkbox">
-      <label :class="{ 'checked': checkbox1 }">
-        <input type="checkbox" v-model="checkbox1" @change="handleCheckboxChange('checkbox1')"> Oui
-      </label>
-      <label :class="{ 'checked': checkbox2 }">
-        <input type="checkbox" v-model="checkbox2" @change="handleCheckboxChange('checkbox2')"> Non
-      </label>
-    </div>
+    <input type="checkbox" id="switch" v-model="checked" @change="handleChange" />
+    <label for="switch"></label>
   </div>
 </template>
 
@@ -25,35 +11,19 @@ import { ref } from 'vue';
 
 const props = defineProps({ textCheckbox: String });
 const emit = defineEmits(['checkboxSet']);
-const checkbox1 = ref(false);
-const checkbox2 = ref(false);
+const checked = ref(false);
 
-/**
- * Handles checkbox change event
- * Emits 'checkboxSet' event with selected option
- */
-const handleCheckboxChange = (checkbox) => {
-  emit('checkboxSet');
-  if (checkbox === 'checkbox1' && checkbox1.value) {
-    checkbox2.value = false;
-    emit('checkboxSet', "Yes");
-  } else if (checkbox === 'checkbox2' && checkbox2.value) {
-    checkbox1.value = false;
-    emit('checkboxSet', "No");
-  }
+const handleChange = () => {
+  emit('checkboxSet', checked.value ? 'Yes' : 'No');
 };
 </script>
 
 <style scoped>
-/**
- * Checkbox Styles
- * Defines styles for the checkbox component.
- */
 .textCheckbox {
   flex: 1;
   text-align: left;
 }
-.checkbox-container {
+.checkboxContainer {
   width: 100%;
   height: 40px;
   display: flex;
@@ -61,8 +31,46 @@ const handleCheckboxChange = (checkbox) => {
   justify-content: space-around;
   align-items: center;
 }
+
+input[type=checkbox]{
+  height: 0;
+  width: 0;
+  visibility: hidden;
+}
+
 label {
-  margin-right: 20px;
   cursor: pointer;
+  text-indent: -9999px;
+  width: 40px;              /* Réduire la taille du toggle switch */
+  height: 20px;             /* Réduire la taille du toggle switch */
+  background: grey;
+  display: block;
+  border-radius: 20px;      /* Ajuster la bordure arrondie */
+  position: relative;
+}
+
+label:after {
+  content: '';
+  position: absolute;
+  top: 2px; /* Ajuster la position verticale */
+  left: 2px; /* Ajuster la position horizontale */
+  width: 16px; /* Ajuster la taille du bouton */
+  height: 16px; /* Ajuster la taille du bouton */
+  background: #fff;
+  border-radius: 50%; /* Rendre le bouton rond */
+  transition: 0.3s;
+}
+
+input:checked + label {
+  background: #5cda5c;
+}
+
+input:checked + label:after {
+  left: calc(100% - 2px);
+  transform: translateX(-100%);
+}
+
+label:active:after {
+  width: 20px; /* Ajuster la taille du bouton lorsqu'il est activé */
 }
 </style>

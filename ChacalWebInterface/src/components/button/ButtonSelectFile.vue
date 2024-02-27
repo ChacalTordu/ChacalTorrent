@@ -38,7 +38,6 @@ const handleFileSelect = (event) => {
 * Defines styles for the file selection button.
 */
 .myButton {
-  margin-top: 10px;
   padding: 4px 20px;
   font-size: 16px;
   background-color: var(--green2-color-3);
