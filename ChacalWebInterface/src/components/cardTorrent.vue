@@ -3,9 +3,10 @@
       <div class="content" :class="{ 'flipped': isFlipped }">
         <div class="front">
             <div class="frontContent">
-                <div class="cardZoneFileInfo"><ZoneFileInfos /></div>
-                <div class="cardZoneDropFile"><ZoneDropFile /></div>
-                <div class="buttonDownload"><ButtonConfirm textButton="Télécharger"/></div>
+                <div class="cardZoneFileInfo"><ZoneFileInfos @saveMediaInfos="handleSaveMediaInfos"/></div>
+                <div class="cardZoneDropFile"><ZoneDropFile @saveTorrent="handleSaveTorrent"/></div>
+                <div class="buttonDownload"><ButtonConfirm @confirmClicked="handleConfirmClicked" textButton="Download"/></div>
+                
             </div>
         </div>
         <div class="back">
@@ -22,12 +23,23 @@
     import ZoneFileInfos from './zone/ZoneFileInfos.vue';
     import ZoneDropFile from './zone/ZoneDropFile.vue';
     import ButtonConfirm from './button/ButtonConfirm.vue';
-  
+    import {class_Media} from '../models/class_Media.js';
+    
+    let class_media = new class_Media();
+    
     const isFlipped = ref(false);
-  
-    const flipCard = () => {
+
+    function handleSaveMediaInfos(class_mediaInfos) {
+
+    }
+
+    function handleSaveTorrent(file_torrent) {
+
+    }
+
+    function handleConfirmClicked() {
       isFlipped.value = !isFlipped.value;
-    };
+    }
   </script>
   
   <style scoped>
@@ -45,7 +57,7 @@
     transform-style: preserve-3d;
     transition: transform 300ms;
     box-shadow: 0px 0px 10px 1px #000000ee;
-    border-radius: 5px;
+    border-radius: 15px;
   }
   
   .content.flipped {
@@ -59,7 +71,7 @@
     height: 100%;
     backface-visibility: hidden;
     -webkit-backface-visibility: hidden;
-    border-radius: 5px;
+    border-radius: 15px;
     overflow: hidden;
     display: flex;
     justify-content: center;
@@ -80,18 +92,21 @@
     position: absolute;
     width: 99%;
     height: 99%;
-    background-color: #ffffff; /* White background similar to Apple's card design */
-    border-radius: 5px;
-    color: black; /* Black text for better contrast */
+    background-color: #ffffff;
+    border-radius: 15px;
+    color: black;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 30px;
   }
   
   .cardZoneFileInfo, .cardZoneDropFile {
       width: 90%;
-      flex-basis: 180px;
+  }
+
+  .buttonDownload {
+    margin-top: auto;
+    margin-bottom: 10px;
   }
   
   @keyframes rotation_481 {

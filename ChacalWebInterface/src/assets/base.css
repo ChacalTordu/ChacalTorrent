@@ -43,6 +43,38 @@
   --green2-color-3: #2B823A;
   --green2-color-4: #0D5B1B;
   --green2-color-5: #003409;
+
+   /* Couleurs primaires */
+   --primary-color-1: #0070c9;
+   --primary-color-2: #0a84ff;
+   --primary-color-3: #007aff;
+   --primary-color-4: #0056b3;
+   --primary-color-5: #002d6e;
+ 
+   /* Couleurs secondaires */
+   --secondary-color-1: #34c759;
+   --secondary-color-2: #5ac8fa;
+   --secondary-color-3: #5fbef4;
+   --secondary-color-4: #007aff;
+   --secondary-color-5: #0176ff;
+ 
+   /* Couleurs de texte */
+   --text-color-dark-1: #000000;
+   --text-color-dark-2: #333333;
+   --text-color-dark-3: #666666;
+   --text-color-dark-4: #999999;
+   --text-color-light: #ffffff;
+ 
+   /* Couleurs de fond */
+   --background-color-dark: #ffffff;
+   --background-color-light: #f4f4f4;
+ 
+   /* Autres couleurs */
+   --accent-color-red: #ff3b30;
+   --accent-color-orange: #ff9500;
+   --accent-color-yellow: #ffcc00;
+   --accent-color-green: #4cd964;
+   --accent-color-blue: #5ac8fa;
 }
 
 /* semantic color variables for this project */

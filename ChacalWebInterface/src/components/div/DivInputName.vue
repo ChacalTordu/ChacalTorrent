@@ -1,20 +1,27 @@
 <template>
-    <div class="group">      
-      <input type="text">
-      <span class="highlight"></span>
-      <span class="bar"></span>
-      <label>Titre</label>
-    </div>
-  </template>
-  
-  <script setup>
-    
-  </script>
-  
+  <div class="group">      
+    <input type="text" v-model="inputValue" @keyup.enter="emitInputValue" @blur="emitInputValue" placeholder="Title">
+    <span class="highlight"></span>
+    <span class="bar"></span>
+  </div>
+</template>
+
+<script setup>
+import { ref } from 'vue';
+
+const emit = defineEmits(['inputNameEntered']);
+const inputValue = ref('');
+
+const emitInputValue = () => {
+  document.activeElement.blur();
+  emit('inputNameEntered',inputValue.value);
+}
+</script>
+
   <style scoped>
   .group {
     position: relative;
-    margin-bottom: 45px;
+    margin-bottom: 15px;
   }
   
   input {
@@ -23,23 +30,11 @@
     display: block;
     width: 300px;
     border: none;
-    border-bottom: 1px solid #C8C6AF; /* Couleur gris clair */
-    background-color: transparent; /* Fond transparent */
+    border-bottom: 2px solid var(--background-color-light);
   }
   
   input:focus {
     outline: none;
-  }
-  
-  label {
-    color: #C8C6AF; /* Couleur gris clair */
-    font-size: 18px;
-    font-weight: normal;
-    position: absolute;
-    pointer-events: none;
-    left: 5px;
-    top: 10px;
-    transition: 0.2s ease all;
   }
   
   input:focus ~ label,

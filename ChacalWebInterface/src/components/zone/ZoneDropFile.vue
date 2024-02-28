@@ -14,7 +14,7 @@ Author: ChacalTordu
     @drop.prevent="handleDrop"
     class="dropzone"
     :class="{'activeDropzone': active , 'hasFile': hasFile}">
-    <span>Drag or Drop or Select File</span>
+    <span v-if="!hasFile">Drag or Drop or Select File</span>
     <ButtonSelectFile v-if="!hasFile" fileFormat=".torrent" @fileSelected="handleFileSelected"/>
     <span v-if="hasFile">{{ fileName }}</span>
     <ButtonAbort v-if="hasFile" textButton="Annuler" @abort="handleAbort"/>
@@ -106,6 +106,7 @@ const handleAbort = () => {
  * Dropzone Styles
  */
 .dropzone {
+  height: 57px;
   display: flex;
   flex-direction: row;
   justify-content: center;
@@ -120,6 +121,12 @@ const handleAbort = () => {
   transition: background-color 0.3s ease-in-out;
   gap: 15px;
   border-radius: 10px;
+
+  /* max-width: 300px; Ajustez cette valeur selon vos besoins */
+  white-space: nowrap; /* Empêche le texte de se mettre à la ligne */
+  overflow: hidden; /* Cache tout texte qui dépasse la limite */
+  text-overflow: ellipsis; /* Ajoute des points de suspension si le texte est coupé */
+
 }
 
 /**
@@ -128,11 +135,18 @@ const handleAbort = () => {
 .activeDropzone {
   background-color: #f0f0f0;
 }
-
+span {
+  max-width: 250px;
+}
 /**
  * File Present Styles
  */
 .hasFile {
   border-style: solid;
+  display: flex;
+}
+.hasFile .ButtonAbort {
+  flex: 1; /* Fait en sorte que le bouton "Abort" s'étende pour remplir l'espace disponible */
+  max-width: 50px; /* Limite la largeur maximale du bouton */
 }
 </style>

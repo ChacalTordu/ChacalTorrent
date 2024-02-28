@@ -1,20 +1,17 @@
 <template>
-  <div class="mediaContainer" :class="{ 'dataValid': dataValidFlag }">
-    <div><InputName /></div>
+  <div class="mediaContainer">
+    <div><DivInputName @inputNameEntered="handleInputNameEntered"/></div>
     <div class="mediaType">
-      <DivClickable class="divClickable" :class="{ 'mediaTypeSelected': selected1 }" @divSelected="handleMediaTypeSelected" textDiv="Film" />
-      <DivClickable class="divClickable" :class="{ 'mediaTypeSelected': selected2 }" @divSelected="handleMediaTypeSelected" textDiv="DessinAnimé" />
-      <DivClickable class="divClickable" :class="{ 'mediaTypeSelected': selected3 }" @divSelected="handleMediaTypeSelected" textDiv="Série" />
-      <DivClickable class="divClickable" :class="{ 'mediaTypeSelected': selected4 }" @divSelected="handleMediaTypeSelected" textDiv="Animé" />
+      <DivClickable class="divClickable" :class="{ 'mediaTypeSelected': bool_selected1 }" @divSelected="handleMediaTypeSelected" string_textDiv="Movie" />
+      <DivClickable class="divClickable" :class="{ 'mediaTypeSelected': bool_selected2 }" @divSelected="handleMediaTypeSelected" string_textDiv="Cartoon" />
+      <DivClickable class="divClickable" :class="{ 'mediaTypeSelected': bool_selected3 }" @divSelected="handleMediaTypeSelected" string_textDiv="Shows" />
+      <DivClickable class="divClickable" :class="{ 'mediaTypeSelected': bool_selected4 }" @divSelected="handleMediaTypeSelected" string_textDiv="Anime" />
     </div>
 
     <div class="mediaChoice">
       <div class="seriesOptions">
         <div class="question">
-          <CheckboxTrueOrFalse @checkboxSet="toggleCheckbox1" textCheckbox="Contient plusieurs saison ?"/>
-          <CheckboxTrueOrFalse @checkboxSet="toggleCheckbox2" textCheckbox="Média déjà existant ?"/>
-          <input v-if="checkbox2" v-model="pathMedia" placeholder="Recherchez le dossier :" disabled>
-          <p v-if="checkbox2" style="text-align: center; margin-top: 5px; color: #f00;">Fonctionnalité pas encore disponible. Veuillez télécharger le .torrent manuellement et le placer correctement dans le serveur.</p>
+          <DivQuestion @slideValueChanged="handleSlideValueChanged" string_textQuestion="Includes several seasons ?"/>
         </div>
       </div>
     </div>
@@ -22,110 +19,125 @@
 </template>
 
 <script setup>
-import { ref, defineEmits } from 'vue';
-import InputName from '../div/InputName.vue';
+import { ref } from 'vue';
+import { class_MediaInfo } from '../../models/class_MediaInfo.js'
+import DivInputName from '../div/DivInputName.vue';
 import DivClickable from '../div/DivClickable.vue'
-import CheckboxTrueOrFalse from '../checkbox/CheckboxTrueOrFalse.vue';
+import DivQuestion from '../div/DivQuestion.vue';
 
-const dataValidFlag = ref(false);
-const selectedMediaType = ref('Nom du média');
-const pathMedia = ref('');
-const checkbox1 = ref();
-const checkbox2 = ref();
-const selected1 = ref(null);
-const selected2 = ref(null);
-const selected3 = ref(null);
-const selected4 = ref(null);
+const emits = defineEmits(['saveMediaInfos']);
 
-const emits = defineEmits(['saveMediaData', 'resetButton', 'abortClicked']);
+const bool_selected1 = ref(null);
+const bool_selected2 = ref(null);
+const bool_selected3 = ref(null);
+const bool_selected4 = ref(null);
 
-function handleMediaTypeSelected(textDiv) {
-  selectedMediaType.value = textDiv;
-  switch (textDiv) {
-    case 'Film':
-      selected1.value = true; 
-      selected2.value = false;
-      selected3.value = false;
-      selected4.value = false;
+const flag_dataValid = ref(false);
+
+const string_title = ref();
+const string_mediaType = ref();
+const bool_includeSeveralSeason = ref();
+
+let let_media = new class_MediaInfo(string_title, string_mediaType, bool_includeSeveralSeason);
+
+function handleInputNameEntered(string_value){
+  let_media.string_title = string_value;
+  console.log("Titre :",test.string_title)
+}
+
+function handleMediaTypeSelected(string_value) {
+  switch (string_value) {
+    case 'Movie':
+      bool_selected1.value = true; 
+      bool_selected2.value = false;
+      bool_selected3.value = false;
+      bool_selected4.value = false;
       break;
-    case 'DessinAnimé':
-      selected1.value = false; 
-      selected2.value = true;
-      selected3.value = false;
-      selected4.value = false;
+    case 'Cartoon':
+      bool_selected1.value = false; 
+      bool_selected2.value = true;
+      bool_selected3.value = false;
+      bool_selected4.value = false;
       break;
-    case 'Série':
-      selected1.value = false; 
-      selected2.value = false;
-      selected3.value = true;
-      selected4.value = false;
+    case 'Shows':
+      bool_selected1.value = false; 
+      bool_selected2.value = false;
+      bool_selected3.value = true;
+      bool_selected4.value = false;
       break;
-    case 'AnimeJaponais':
-      selected1.value = false; 
-      selected2.value = false;
-      selected3.value = false;
-      selected4.value = true;
+    case 'Anime':
+      bool_selected1.value = false; 
+      bool_selected2.value = false;
+      bool_selected3.value = false;
+      bool_selected4.value = true;
       break;
     default:
       break;
   }
+  let_media.string_mediaType = string_value;
+  console.log("Type de média: ",test.string_mediaType)
 }
 
-function handleConfirmClicked() {
-  if ((selectedMediaType.value === 'Film') || (selectedMediaType.value === 'Dessin animé')) {
-    if (pathMedia.value == '') {
-      emits('resetButton');
-    } else {
-      dataValidFlag.value = true;
-      emits('saveMediaData', selectedMediaType, pathMedia, false, false);
-    }
-  } else {
-    if ((checkbox1.value == undefined) || (checkbox2.value == undefined) || (pathMedia.value == '')) {
-      emits('resetButton');
-    } else {
-      dataValidFlag.value = true;
-      emits('saveMediaData', selectedMediaType, pathMedia, checkbox1.value, checkbox2.value);
-    }
-  }
+function handleSlideValueChanged(bool_value){
+  let_media.bool_includeSeveralSeason = bool_value;
+  console.log("Valeur slide:",bool_value)
 }
 
-function toggleInputTextVisible(value) {
-  if (value == "Yes") {
-    checkbox2.value = false;
-  } else if (value == "No") {
-    checkbox2.value = true;
-  }
-}
+// function handleConfirmClicked() {
+//   if ((selectedMediaType.value === 'Film') || (selectedMediaType.value === 'Dessin animé')) {
+//     if (pathMedia.value == '') {
+//       emits('resetButton');
+//     } else {
+//       dataValidFlag.value = true;
+//       emits('saveMediaData', selectedMediaType, pathMedia, false, false);
+//     }
+//   } else {
+//     if ((checkbox1.value == undefined) || (checkbox2.value == undefined) || (pathMedia.value == '')) {
+//       emits('resetButton');
+//     } else {
+//       dataValidFlag.value = true;
+//       emits('saveMediaData', selectedMediaType, pathMedia, checkbox1.value, checkbox2.value);
+//     }
+//   }
+// }
 
-function CheckCheckbox1Value(value) {
-  if (value == "Yes") {
-    checkbox1.value = true;
-  } else if (value == "No") {
-    checkbox1.value = false;
-  }
-}
+// function toggleInputTextVisible(value) {
+//   if (value == "Yes") {
+//     checkbox2.value = false;
+//   } else if (value == "No") {
+//     checkbox2.value = true;
+//   }
+// }
 
-function toggleCheckbox1(value) {
-  CheckCheckbox1Value(value);
-}
+// function CheckCheckbox1Value(value) {
+//   if (value == "Yes") {
+//     checkbox1.value = true;
+//   } else if (value == "No") {
+//     checkbox1.value = false;
+//   }
+// }
 
-function CheckCheckbox2Value(value) {
-  if (value == "Yes") {
-    checkbox2.value = true;
-  } else if (value == "No") {
-    checkbox2.value = false;
-  }
-}
+// function toggleCheckbox1(value) {
+//   CheckCheckbox1Value(value);
+// }
 
-function toggleCheckbox2(value) {
-  toggleInputTextVisible(value);
-  CheckCheckbox2Value(value);
-}
+// function CheckCheckbox2Value(value) {
+//   if (value == "Yes") {
+//     checkbox2.value = true;
+//   } else if (value == "No") {
+//     checkbox2.value = false;
+//   }
+// }
 
-function handleAbort() {
-  dataValidFlag.value = false;
-  emits('abortClicked');
-}
+// function toggleCheckbox2(value) {
+//   toggleInputTextVisible(value);
+//   CheckCheckbox2Value(value);
+// }
+
+// function handleAbort() {
+//   dataValidFlag.value = false;
+//   emits('abortClicked');
+// }
 </script>
 
 <style scoped>
@@ -143,7 +155,7 @@ function handleAbort() {
 
 .divClickable {
   width: auto;
-  background: #e8e8e8; /* Apple-like gray background */
+  background: #e8e8e8; 
   border-radius: 5px;
   padding: 0px 10px 0px 10px;
 }

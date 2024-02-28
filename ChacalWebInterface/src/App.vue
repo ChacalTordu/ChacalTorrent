@@ -10,16 +10,11 @@ Author: ChacalTordu
   <div class="myApp">
     <div class="title"><p>Chacal Torrent</p></div>
     <cardTorrent />
-    <!-- Component for displaying log information -->
-    <ZoneLogInfos :logMessages="logMessages" />
-    <!-- Information for refreshing page -->
-    <p>Si vous souhaitez télécharger un nouveau fichier, veuillez actualiser la page.</p>
   </div>
 </template>
 
 <script setup>
 import cardTorrent from "./components/cardTorrent.vue";
-import ZoneLogInfos from "./components/zone/ZoneLogInfos.vue"
 
 import axios from 'axios'
 import { ref } from 'vue'
@@ -182,6 +177,14 @@ ws.onmessage = (event) => {
 </script>
 
 <style scoped>
+.myApp {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start; /* Alignement vertical en haut */
+  gap: 60px;
+}
 
 .title {
   font-weight: bold;
@@ -189,66 +192,5 @@ ws.onmessage = (event) => {
   letter-spacing: 2px;
   color: #333;
   text-align: center;
-  padding: 20px 0;
-}
-
-/**
- * Styles for main application container
- */
-.myApp {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 60px;
-}
-
-/**
- * Styles for layout of ZoneDropFile and ZoneFileInfo components
- */
-.twoZone {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 100px;
-}
-
-.myDropZone, .myFileInfosZone {
-  width: 500px;           
-  height: 200px;          
-  border-radius: 30px;
-}
-
-.myDropZone {
-  border: 2px dashed #ccc;
-}
-
-.myFileInfosZone {        
-  background: #e0e0e0;                      
-  box-shadow: 15px 15px 30px #bebebe,
-             -15px -15px 30px #ffffff;
-}
-
-/**
- * Blink animation style
- */
-.blink {
-    outline: 2px solid var(--red-color-4); 
-}
-
-/**
- * Styles for button and spinner container
- */
-.buttonAndSpinner {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-}
-
-/**
- * Styles for hiding elements
- */
-.noneVisible {
-  display: none;
 }
 </style>
