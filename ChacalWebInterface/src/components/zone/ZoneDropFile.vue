@@ -22,9 +22,9 @@ Author: ChacalTordu
 </template>
 
 <script setup>
+import { ref } from 'vue';
 import ButtonSelectFile from '../button/ButtonSelectFile.vue';
 import ButtonAbort from '../button/ButtonAbort.vue';
-import { ref } from 'vue';
 
 const acceptedFormat = ".torrent";
 
@@ -32,73 +32,66 @@ const active = ref(false);
 const hasFile = ref(false);
 const fileName = ref('');
 
-const emits = defineEmits(['resetButton','fileChosen','abordClicked']);
+const emits = defineEmits(['fileChosen','fileAbort']);
 
-/**
- * Handles drag enter event
- */
-const handleDragEnter = (event) => {
-  event.preventDefault();
-  active.value = true;
-};
+  // # *****************************************************************************************************************
+  // # *****************************************************************************************************************
+  // # H A N D L E   F U N C T I O N S          
+  // # *****************************************************************************************************************
+  // # *****************************************************************************************************************
 
-/**
- * Handles drag leave event
- */
-const handleDragLeave = () => {
-  active.value = false;
-};
-
-/**
- * Handles file drop event
- */
-const handleDrop = (event) => {
-  event.preventDefault();
-  active.value = false;
-  const files = event.dataTransfer.files;
-  if (files.length !== 1) {
-    alert("Veuillez ne déposer qu'un seul fichier.");
-  } else if (!checkFileFormat(files[0])) {
-    alert(`Veuillez sélectionner un fichier ${acceptedFormat}.`);
-  } else {
-    handleFileSelected(files[0]);
+  function handleDragEnter(event) {
+    event.preventDefault();
+    active.value = true;
   }
-};
 
-/**
- * Handles file selected event
- */
-const handleFileSelected = (file) => {
-  if (checkFileFormat(file)) {
-    alert(`Veuillez sélectionner un fichier ${acceptedFormat}.`);
-  } else {
-    hasFile.value = true;
-    fileName.value = file.name;
-    emits('fileChosen', file);
+  function handleDragLeave() {
+    active.value = false;
   }
-};
 
-/**
- * Checks file format
- */
-const checkFileFormat = (file) => {
-  const fileExtension = file.name.split('.').pop();
-  return fileExtension.toLowerCase() === acceptedFormat.toLowerCase();
-};
-
-/**
- * Handles abort event
- */
-const handleAbort = () => {
-  try {
-    hasFile.value = false;
-    fileName.value = '';
-    emits('abordClicked');
-    console.log("Fichier annulé avec succès");
-  } catch (error) {
-    console.error("Une erreur est survenue:", error);
+  function handleDrop(event) {
+    event.preventDefault();
+    active.value = false;
+    const files = event.dataTransfer.files;
+    if (files.length !== 1) {
+      alert("Veuillez ne déposer qu'un seul fichier.");
+    } else if (checkFileFormat(files[0])) {
+      alert(`Veuillez sélectionner un fichier ${acceptedFormat}.`);
+    } else {
+      handleFileSelected(files[0]);
+    }
   }
-};
+
+  function handleFileSelected(file) {
+    if (checkFileFormat(file)) {
+      alert(`Veuillez sélectionner un fichier ${acceptedFormat}.`);
+    } else {
+      hasFile.value = true;
+      fileName.value = file.name;
+      emits('fileChosen', file);
+    }
+  }
+
+  function handleAbort() {
+    try {
+      hasFile.value = false;
+      fileName.value = '';
+      emits('fileAbort');
+    } catch (error) {
+      console.error("Une erreur est survenue:", error);
+    }
+  }
+
+  // # *****************************************************************************************************************
+  // # *****************************************************************************************************************
+  // # M I N O R   F U N C T I O N S          
+  // # *****************************************************************************************************************
+  // # *****************************************************************************************************************
+
+  function checkFileFormat(file) {
+    const fileExtension = file.name.split('.').pop();
+    return fileExtension.toLowerCase() === acceptedFormat.toLowerCase();
+  }
 </script>
 
 <style scoped>

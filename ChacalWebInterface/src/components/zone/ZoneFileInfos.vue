@@ -7,7 +7,6 @@
       <DivClickable class="divClickable" :class="{ 'mediaTypeSelected': bool_selected3 }" @divSelected="handleMediaTypeSelected" string_textDiv="Shows" />
       <DivClickable class="divClickable" :class="{ 'mediaTypeSelected': bool_selected4 }" @divSelected="handleMediaTypeSelected" string_textDiv="Anime" />
     </div>
-
     <div class="mediaChoice">
       <div class="seriesOptions">
         <div class="question">
@@ -32,17 +31,16 @@ const bool_selected2 = ref(null);
 const bool_selected3 = ref(null);
 const bool_selected4 = ref(null);
 
-const flag_dataValid = ref(false);
-
-const string_title = ref();
-const string_mediaType = ref();
-const bool_includeSeveralSeason = ref();
+const string_title = ref('empty');
+const string_mediaType = ref('empty');
+const bool_includeSeveralSeason = ref(false);
 
 let let_media = new class_MediaInfo(string_title, string_mediaType, bool_includeSeveralSeason);
 
 function handleInputNameEntered(string_value){
   let_media.string_title = string_value;
-  console.log("Titre :",test.string_title)
+  // console.log("Titre :",let_media.string_title)
+  emits('saveMediaInfos',let_media)
 }
 
 function handleMediaTypeSelected(string_value) {
@@ -75,69 +73,15 @@ function handleMediaTypeSelected(string_value) {
       break;
   }
   let_media.string_mediaType = string_value;
-  console.log("Type de média: ",test.string_mediaType)
+  // console.log("Type de média: ",let_media.string_mediaType)
+  emits('saveMediaInfos',let_media)
 }
 
 function handleSlideValueChanged(bool_value){
   let_media.bool_includeSeveralSeason = bool_value;
-  console.log("Valeur slide:",bool_value)
+  // console.log("Valeur slide:",let_media.bool_includeSeveralSeason)
+  emits('saveMediaInfos',let_media)
 }
-
-// function handleConfirmClicked() {
-//   if ((selectedMediaType.value === 'Film') || (selectedMediaType.value === 'Dessin animé')) {
-//     if (pathMedia.value == '') {
-//       emits('resetButton');
-//     } else {
-//       dataValidFlag.value = true;
-//       emits('saveMediaData', selectedMediaType, pathMedia, false, false);
-//     }
-//   } else {
-//     if ((checkbox1.value == undefined) || (checkbox2.value == undefined) || (pathMedia.value == '')) {
-//       emits('resetButton');
-//     } else {
-//       dataValidFlag.value = true;
-//       emits('saveMediaData', selectedMediaType, pathMedia, checkbox1.value, checkbox2.value);
-//     }
-//   }
-// }
-
-// function toggleInputTextVisible(value) {
-//   if (value == "Yes") {
-//     checkbox2.value = false;
-//   } else if (value == "No") {
-//     checkbox2.value = true;
-//   }
-// }
-
-// function CheckCheckbox1Value(value) {
-//   if (value == "Yes") {
-//     checkbox1.value = true;
-//   } else if (value == "No") {
-//     checkbox1.value = false;
-//   }
-// }
-
-// function toggleCheckbox1(value) {
-//   CheckCheckbox1Value(value);
-// }
-
-// function CheckCheckbox2Value(value) {
-//   if (value == "Yes") {
-//     checkbox2.value = true;
-//   } else if (value == "No") {
-//     checkbox2.value = false;
-//   }
-// }
-
-// function toggleCheckbox2(value) {
-//   toggleInputTextVisible(value);
-//   CheckCheckbox2Value(value);
-// }
-
-// function handleAbort() {
-//   dataValidFlag.value = false;
-//   emits('abortClicked');
-// }
 </script>
 
 <style scoped>
