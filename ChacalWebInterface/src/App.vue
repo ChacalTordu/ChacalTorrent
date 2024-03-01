@@ -9,21 +9,28 @@ Author: ChacalTordu
 <template>
   <div class="myApp">
     <div class="title"><p>Chacal Torrent</p></div>
-    <div class="cards"><cardTorrent /></div>
+      <div class="cards">
+        <!-- <div class="cardsRow" v-for="(row, index) in componentRows" :key="index"> -->
+          <div v-for="(item, index) in componentList" :key="index">
+            <cardTorrent @downloadClicked="handleDownloadClicked"/>
+          </div>
+        <!-- </div> -->
+      </div>
   </div>
 </template>
 
 <script setup>
+import { ref, computed } from "vue";
 import cardTorrent from "./components/cardTorrent.vue";
-import { ref } from 'vue'
 
-const ws = new WebSocket('ws://localhost:8080');
-const logMessages = ref([]);
+const componentList = ref([cardTorrent]);
+ 
+function handleDownloadClicked() {
+  console.log("callback handleDownloadClicked appelé")
+  componentList.value.push(cardTorrent)
+}
 
-// WebSocket message handler
-ws.onmessage = (event) => {
-  logMessages.value = [event.data];
-};
+
 </script>
 
 <style scoped>

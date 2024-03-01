@@ -40,6 +40,8 @@
     
     let let_newMediaInfo = new class_MediaInfo();
     const formData_formData = new FormData();
+
+    const emits = defineEmits(['downloadClicked'])
     
     const bool_flagErrorMessage = ref(false);
     const bool_isFlipped = ref(false);
@@ -83,6 +85,7 @@
         if(validateTorrent()){
           if(formattingJsonFile()){
             bool_isFlipped.value = true;
+            emits('downloadClicked');
             if(sendDataToServer()){ 
               bool_downloading.value = true;
               bool_flagStep1.value = true;
