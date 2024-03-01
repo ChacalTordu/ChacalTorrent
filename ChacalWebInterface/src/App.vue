@@ -10,11 +10,11 @@ Author: ChacalTordu
   <div class="myApp">
     <div class="title"><p>Chacal Torrent</p></div>
       <div class="cards">
-        <!-- <div class="cardsRow" v-for="(row, index) in componentRows" :key="index"> -->
-          <div v-for="(item, index) in componentList" :key="index">
+        <div class="cardsRow" v-for="(row, index) in componentRows" :key="index">
+          <div v-for="(item, rowIndex) in componentList" :key="rowIndex" class="cardItem">
             <cardTorrent @downloadClicked="handleDownloadClicked"/>
           </div>
-        <!-- </div> -->
+        </div>
       </div>
   </div>
 </template>
@@ -30,6 +30,19 @@ function handleDownloadClicked() {
   componentList.value.push(cardTorrent)
 }
 
+const componentRows = computed(() => {
+  const rows = [];
+  const components = componentList.value;
+  const numComponent = components.length;
+  
+  let rowIndex = 0;
+
+  for (let i = 0; i < numComponent; i+=3) {
+    rows.push(components.slice(i,i+3));
+  }
+  return rows;
+
+});
 
 </script>
 
@@ -53,7 +66,14 @@ function handleDownloadClicked() {
 
 .cards {
   display: flex;
-  flex-direction: row;
-  gap: 80px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.cardsRow {
+  display: flex;
+  flex-wrap: wrap;
+  /* gap: 80px; */
+  margin-bottom: 20px;
 }
 </style>
