@@ -31,15 +31,10 @@ const bool_selected2 = ref(null);
 const bool_selected3 = ref(null);
 const bool_selected4 = ref(null);
 
-const string_title = ref('empty');
-const string_mediaType = ref('empty');
-const bool_includeSeveralSeason = ref(false);
-
-let let_media = new class_MediaInfo(string_title, string_mediaType, bool_includeSeveralSeason);
+let let_media = new class_MediaInfo('empty', 'empty', false);
 
 function handleInputNameEntered(string_value){
   let_media.string_title = string_value;
-  // console.log("Titre :",let_media.string_title)
   emits('saveMediaInfos',let_media)
 }
 
@@ -79,7 +74,6 @@ function handleMediaTypeSelected(string_value) {
 
 function handleSlideValueChanged(bool_value){
   let_media.bool_includeSeveralSeason = bool_value;
-  // console.log("Valeur slide dans la zone file infos:",let_media.bool_includeSeveralSeason)
   emits('saveMediaInfos',let_media)
 }
 </script>

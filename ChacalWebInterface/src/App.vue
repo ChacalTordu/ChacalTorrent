@@ -9,7 +9,7 @@ Author: ChacalTordu
 <template>
   <div class="myApp">
     <div class="title"><p>Chacal Torrent</p></div>
-    <div class="cards"><cardTorrent /><cardTorrent /><cardTorrent /></div>
+    <div class="cards"><cardTorrent /></div>
   </div>
 </template>
 

@@ -11,9 +11,12 @@
       </div>
       <div v-if="bool_isFlipped" class="back">
         <div class="backContent">
-          <div><Spinner/></div>
-          <div><Error/></div>
-          <div><Success/></div>
+          <div v-if="bool_flagStep1">Sends data to current server ... (1/3)</div>
+          <div v-if="bool_flagStep2">Download torrent in progress ... (2/3)</div>
+          <div v-if="bool_flagStep3">Sorting downloaded files ... (3/3)</div>
+          <div><Spinner v-if="bool_downloading"/></div>
+          <div><Error v-if="bool_downloadError"/></div>
+          <div><Success v-if="bool_downloadSuceed"/></div>
         </div>
       </div>
     </div>
@@ -38,9 +41,16 @@
     let let_newMediaInfo = new class_MediaInfo();
     const formData_formData = new FormData();
     
-    const bool_flagErrorMessage = ref(false)
+    const bool_flagErrorMessage = ref(false);
     const bool_isFlipped = ref(false);
-    const file_fileTorrent = ref(null)
+    const bool_downloadError = ref(null);
+    const bool_downloadSuceed = ref(null);
+    const bool_downloading = ref(null);
+    const file_fileTorrent = ref(null);
+
+    const bool_flagStep1 = ref(null);
+    const bool_flagStep2 = ref(null);
+    const bool_flagStep3 = ref(null);
 
     // # *****************************************************************************************************************
     // # *****************************************************************************************************************
@@ -74,6 +84,8 @@
           if(formattingJsonFile()){
             bool_isFlipped.value = true;
             if(sendDataToServer()){ 
+              bool_downloading.value = true;
+              bool_flagStep1.value = true;
             }else{bool_flagErrorMessage.value = true}
           }else{bool_flagErrorMessage.value = true;return}
         }else{bool_flagErrorMessage.value = true;return}
@@ -102,7 +114,7 @@
 
       // Vérification de la présence de plusieurs saisons
       if (let_mediaInfo.bool_includeSeveralSeason !== true && let_mediaInfo.bool_includeSeveralSeason !== false) {
-        console.error("La valeur d'inclusion de plusieurs saisons est invalide");
+        console.error("La valeur d'inclusion de plusieurs saisons est invalide", let_mediaInfo.bool_includeSeveralSeason);
         return false;
       }
 
@@ -136,14 +148,25 @@
     }
 
     // Send JSON and torrent file to server
-    function sendDataToServer() {
+    async function sendDataToServer() {
       try {
-        axios.post('http://localhost:3000/uploadFile', formData_formData);
+        await axios.post('http://localhost:3000/uploadFile', formData_formData);
         console.log('Envoie du Torrent au serveur ...');
-        axios.post('http://localhost:3000/uploadJSON', jsonMediaInfos);
+        const responseJSON = await axios.post('http://localhost:3000/uploadJSON', jsonMediaInfos);
+        // await axios.post('http://localhost:3000/uploadJSON', jsonMediaInfos);
         console.log('Envoie des informations au serveur ...');
+        if (responseJSON.status === 200) {
+          console.log('Le serveur a confirmé la réception des données JSON.');
+          bool_flagStep1.value = false;
+          bool_flagStep2.value = true;
+        } else {
+          console.error('Réponse inattendue du serveur lors de l\'envoi des données JSON:', responseJSON.data);
+          bool_downloadError.value = true;
+        }
         return true
       } catch (error) {
+        bool_downloading.value = false;
+        bool_downloadError.value = true;
         console.error('Une erreur est survenue lors de l\'envoi des données au serveur:', error.message);
         return false
       }
@@ -231,6 +254,11 @@
 .backContent {
     position: absolute;
     z-index: 2;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
 }
 
 .buttonDownload {
