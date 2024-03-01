@@ -9,7 +9,7 @@ Author: ChacalTordu
 <template>
   <div class="myApp">
     <div class="title"><p>Chacal Torrent</p></div>
-    <cardTorrent />
+    <div class="cards"><cardTorrent /><cardTorrent /><cardTorrent /></div>
   </div>
 </template>
 
@@ -42,5 +42,11 @@ ws.onmessage = (event) => {
   letter-spacing: 2px;
   color: #333;
   text-align: center;
+}
+
+.cards {
+  display: flex;
+  flex-direction: row;
+  gap: 80px;
 }
 </style>
