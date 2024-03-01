@@ -22,7 +22,7 @@ const logMessages = ref([]);
 
 // WebSocket message handler
 ws.onmessage = (event) => {
-  logMessages.value = [event.data]; // Replace current content with new message
+  logMessages.value = [event.data];
 };
 </script>
 
@@ -32,7 +32,7 @@ ws.onmessage = (event) => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-start; /* Alignement vertical en haut */
+  justify-content: flex-start;
   gap: 60px;
 }
 

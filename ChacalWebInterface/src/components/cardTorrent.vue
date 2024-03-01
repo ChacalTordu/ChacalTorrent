@@ -101,7 +101,7 @@
       }
 
       // Vérification de la présence de plusieurs saisons
-      if (let_mediaInfo.bool_includeSeveralSeason.value !== true && let_mediaInfo.bool_includeSeveralSeason.value !== false) {
+      if (let_mediaInfo.bool_includeSeveralSeason !== true && let_mediaInfo.bool_includeSeveralSeason !== false) {
         console.error("La valeur d'inclusion de plusieurs saisons est invalide");
         return false;
       }

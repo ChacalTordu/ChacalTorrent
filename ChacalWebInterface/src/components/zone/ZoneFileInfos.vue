@@ -79,7 +79,7 @@ function handleMediaTypeSelected(string_value) {
 
 function handleSlideValueChanged(bool_value){
   let_media.bool_includeSeveralSeason = bool_value;
-  // console.log("Valeur slide:",let_media.bool_includeSeveralSeason)
+  // console.log("Valeur slide dans la zone file infos:",let_media.bool_includeSeveralSeason)
   emits('saveMediaInfos',let_media)
 }
 </script>
@@ -135,11 +135,5 @@ input:focus {
   display: flex;
   flex-direction: column;
   align-items: center;
-}
-
-.myButton {
-  width: 100px;
-  height: 40px;
-  margin: auto;
 }
 </style>
