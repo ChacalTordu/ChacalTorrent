@@ -19,6 +19,11 @@ const logFilePath = path.join(__dirname, '../../fileManagement.log');
 let fileName = '';
 
 const app = express();
+// Configure CORS
+app.use(cors());
+// Middleware
+app.use(express.json()); // JSON data support
+app.use(express.urlencoded({ extended: true })); // URL encoded data support
 const upload = multer({ dest: uploadDestination });
 
 // Define listening port
@@ -152,15 +157,8 @@ function readLastLines(numLines) {
 // # *****************************************************************************************************************
 
 // Ensure directories exist
-ensureDirectoryExists(uploadDestination);
-ensureDirectoryExists(jsonDestination);
-
-// Configure CORS
-app.use(cors());
-
-// Middleware
-app.use(express.json()); // JSON data support
-app.use(express.urlencoded({ extended: true })); // URL encoded data support
+ensureDirectoryExists(path.join(__dirname, uploadDestination));
+ensureDirectoryExists(path.join(__dirname, jsonDestination));
 
 fs.watchFile(logFilePath, (curr, prev) => {
   readLastLines(nbLinesOfLog); // Read last lines again when log file is modified
