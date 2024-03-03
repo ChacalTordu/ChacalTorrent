@@ -9,9 +9,8 @@ Author: ChacalTordu
 <template>
   <div class="myApp">
     <div class="title"><p>Chacal Torrent</p></div>
-      <div class="cards" v-for="(item, rowIndex) in componentList" :key="rowIndex">
-            <cardTorrent @downloadClicked="handleDownloadClicked"/>
-
+      <div class="cards" >
+          <cardTorrent @downloadClicked="handleDownloadClicked" v-for="(item, rowIndex) in componentList" :key="rowIndex"/>
       </div>
   </div>
 </template>
