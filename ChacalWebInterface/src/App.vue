@@ -22,7 +22,7 @@ import cardTorrent from "./components/cardTorrent.vue";
 const componentList = ref([cardTorrent]);
  
 function handleDownloadClicked() {
-  console.log("callback handleDownloadClicked appelé")
+  // console.log("callback handleDownloadClicked appelé")
   componentList.value.push(cardTorrent)
 }
 

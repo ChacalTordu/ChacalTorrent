@@ -11,6 +11,7 @@
       </div>
       <div v-if="bool_isFlipped" class="back">
         <div class="backContent">
+          <mediaPoster />
           <div v-if="bool_flagStep1">Sends data to current server ... (1/3)</div>
           <div v-if="bool_flagStep2">Download torrent in progress ... (2/3)</div>
           <div v-if="bool_flagStep3">Sorting downloaded files ... (3/3)</div>
@@ -35,6 +36,7 @@
     import Spinner from './animation/Spinner.vue';
     import Error from './animation/Error.vue';
     import Success from './animation/Success.vue';
+    import mediaPoster from './mediaPoster.vue';
 
     var jsonMediaInfos
     
@@ -89,6 +91,7 @@
             if(sendDataToServer()){ 
               bool_downloading.value = true;
               bool_flagStep1.value = true;
+              mediaPoster.searchMovie(let_newMediaInfo.string_title);
             }else{bool_flagErrorMessage.value = true}
           }else{bool_flagErrorMessage.value = true;return}
         }else{bool_flagErrorMessage.value = true;return}

@@ -33,7 +33,7 @@ torrentFiles/
 ChacalWebInterface/serverBack/uploadsJSON/*
 ChacalWebInterface/serverBack/uploadsTorrent/*
 
-ChacalFileManagement/config/
+config/
 
 inputDirTorrentDownloader/*
 outputDirTorrentDownloader/*
