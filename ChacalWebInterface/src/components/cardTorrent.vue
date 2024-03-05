@@ -11,7 +11,7 @@
       </div>
       <div v-if="bool_isFlipped" class="back">
         <div class="backContent">
-          <mediaPoster />
+          <!-- <mediaPoster /> -->
           <div v-if="bool_flagStep1">Sends data to current server ... (1/3)</div>
           <div v-if="bool_flagStep2">Download torrent in progress ... (2/3)</div>
           <div v-if="bool_flagStep3">Sorting downloaded files ... (3/3)</div>
