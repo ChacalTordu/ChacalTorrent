@@ -1,10 +1,8 @@
-/**
- * Server.js - File Upload and WebSocket Server
- *
- * This script sets up an Express server to handle file uploads and JSON data, as well as WebSocket connections.
- * It listens for uploaded files, saves them to designated folders, and processes JSON data, writing it to files.
- * Additionally, it establishes a WebSocket server to provide real-time updates to clients based on log file changes.
- */
+// # *****************************************************************************************************************
+// # *****************************************************************************************************************
+// # V A R I A B L E         
+// # *****************************************************************************************************************
+// # *****************************************************************************************************************
 
 const express = require('express');
 const multer = require('multer');
@@ -15,11 +13,17 @@ const WebSocket = require('ws');
 const readline = require('readline');
 
 // Define destination folders
-const uploadDestination = 'uploadsTorrent/';
-const jsonDestination = 'uploadsJSON/';
+const uploadDestination = './uploadsTorrent';
+const jsonDestination = './uploadsJSON';
+const logFilePath = path.join(__dirname, '../../fileManagement.log');
 let fileName = '';
 
 const app = express();
+// Configure CORS
+app.use(cors());
+// Middleware
+app.use(express.json()); // JSON data support
+app.use(express.urlencoded({ extended: true })); // URL encoded data support
 const upload = multer({ dest: uploadDestination });
 
 // Define listening port
@@ -28,12 +32,11 @@ const port = process.env.PORT || 3000;
 const wss = new WebSocket.Server({ port: 8080 });
 const nbLinesOfLog = 5;
 
-// Configure CORS
-app.use(cors());
-
-// Middleware
-app.use(express.json()); // JSON data support
-app.use(express.urlencoded({ extended: true })); // URL encoded data support
+// # *****************************************************************************************************************
+// # *****************************************************************************************************************
+// # R O U T E   F U N C T I O N S          
+// # *****************************************************************************************************************
+// # *****************************************************************************************************************
 
 /**
  * POST Route for File Upload
@@ -77,6 +80,25 @@ app.post('/uploadJSON', (req, res) => {
   }
 });
 
+// # *****************************************************************************************************************
+// # *****************************************************************************************************************
+// # I N I T   F U N C T I O N S          
+// # *****************************************************************************************************************
+// # *****************************************************************************************************************
+
+// Function to ensure directory exists, create if not
+function ensureDirectoryExists (directory) {
+  if (!fs.existsSync(directory)) {
+    fs.mkdirSync(directory, { recursive: true });
+  }
+};
+
+// # *****************************************************************************************************************
+// # *****************************************************************************************************************
+// # C O M M O N   F U N C T I O N S          
+// # *****************************************************************************************************************
+// # *****************************************************************************************************************
+
 /**
  * Writes JSON Data to File
  * Writes received JSON data to a file in JSON format.
@@ -98,14 +120,6 @@ function writeJSONToFile(jsonData) {
     console.error('Une erreur est survenue lors de l\'écriture des données JSON dans le fichier :', error.message); // Error writing JSON data to file
   }
 }
-
-/**
- * Starts the HTTP server
- * Starts the Express server on the defined port.
- */
-app.listen(port, () => {
-  console.log(`Serveur HTTP démarré sur le port ${port}`); // HTTP server started on port
-});
 
 /**
  * Reads Last Lines of Log File
@@ -136,11 +150,27 @@ function readLastLines(numLines) {
   });
 }
 
-// Add watch for log file changes
-const logFilePath = path.join(__dirname, '../../fileManagement.log');
+// # *****************************************************************************************************************
+// # *****************************************************************************************************************
+// # M A I N   F U N C T I O N S          
+// # *****************************************************************************************************************
+// # *****************************************************************************************************************
+
+// Ensure directories exist
+ensureDirectoryExists(path.join(__dirname, uploadDestination));
+ensureDirectoryExists(path.join(__dirname, jsonDestination));
+
 fs.watchFile(logFilePath, (curr, prev) => {
   readLastLines(nbLinesOfLog); // Read last lines again when log file is modified
 });
 
 // Read last lines on server startup
 readLastLines(nbLinesOfLog);
+
+/**
+ * Starts the HTTP server
+ * Starts the Express server on the defined port.
+ */
+app.listen(port, () => {
+  console.log(`Serveur HTTP démarré sur le port ${port}`); // HTTP server started on port
+});

@@ -122,7 +122,14 @@ def signalHandler(sig, frame):
 if __name__ == "__main__":
     try:
         # Charge les chemins configurés dans le fichier path.json dans le dossier config
-        pathSourceDirJson, pathSourceDirTorrent, pathInputDirDeluge, pathOutputDirDeluge, pathNewDirMedia, error = loadPaths(os.path.join('config', 'path.json'))  
+        (
+            pathSourceDirJson,
+            pathSourceDirTorrent,
+            pathInputDirDeluge,
+            pathOutputDirDeluge,
+            pathNewDirMedia,
+            error,
+        ) = loadPaths(os.path.join(os.path.dirname(__file__), "config", "path.json"))
         if error:
             logger.error(f"Une erreur s'est produite lors du chargement des chemins dans le fichier path.json dans le dossier config/ : {error}")
         else:
