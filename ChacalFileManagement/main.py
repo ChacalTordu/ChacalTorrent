@@ -3,6 +3,7 @@ import json
 import signal
 import multiprocessing
 import logging
+import websocket
 
 from logger_config import logger
 import torrentAndJsonManagement
@@ -57,6 +58,7 @@ def manageTorrentAndJson(pathSourceDirJson, pathSourceDirTorrent, pathInputDirDe
     """
     Gère les fichiers torrent et JSON.
     """
+    print("Process manageTorrentAndJson() is running ...")
     while True:
         try:
             fileJson, error = torrentAndJsonManagement.torrentAndJsonManagementMain(pathSourceDirJson, pathSourceDirTorrent, pathInputDirDeluge)
@@ -100,6 +102,7 @@ def sortFiles(pathOutputDirDeluge, pathNewDirMedia, queueJson):
     """
     Trie les fichiers.
     """
+    print("Process sortFiles() is running ...")
     file_listNameFileSought = initSortFiles(pathNewDirMedia)
     while True:
         try:
