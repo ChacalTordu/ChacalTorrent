@@ -29,11 +29,11 @@ def loadPaths(jsonFile):
                 data = json.load(f)
             
             if data is not None:
-                pathSourceDirJson = data.get('sourceDirJson')
-                pathSourceDirTorrent = data.get('sourceDirTorrent')
-                pathInputDirDeluge = data.get('inputDirDeluge')
-                pathOutputDirDeluge = data.get('outputDirDeluge')
-                pathNewDirMedia = data.get('mediaDir')
+                pathSourceDirJson = data.get('path_sourceDirJson')
+                pathSourceDirTorrent = data.get('path_sourceDirTorrent')
+                pathInputDirDeluge = data.get('path_inputDirDeluge')
+                pathOutputDirDeluge = data.get('path_outputDirDeluge')
+                pathNewDirMedia = data.get('path_mediaDir')
 
                 # Créer le dossier s'il n'existe pas
                 if pathNewDirMedia and not os.path.exists(pathNewDirMedia):
@@ -129,7 +129,7 @@ if __name__ == "__main__":
             pathOutputDirDeluge,
             pathNewDirMedia,
             error,
-        ) = loadPaths(os.path.join(os.path.dirname(__file__), "config", "path.json"))
+        ) = loadPaths(os.path.join(os.path.dirname(__file__), "../config", "config.json"))
         if error:
             logger.error(f"Une erreur s'est produite lors du chargement des chemins dans le fichier path.json dans le dossier config/ : {error}")
         else:

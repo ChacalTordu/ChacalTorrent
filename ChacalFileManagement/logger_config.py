@@ -6,7 +6,7 @@ def setup_logger():
     Configure le système de journalisation.
     """
     # Obtenez le chemin absolu du répertoire parent du répertoire actuel
-    parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+    parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), './'))
 
     # Construisez le chemin complet du fichier de log dans le répertoire parent
     log_file_path = os.path.join(parent_dir, 'fileManagement.log')
