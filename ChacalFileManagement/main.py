@@ -104,10 +104,11 @@ def sortFiles(pathOutputDirDeluge, pathNewDirMedia, queueJson):
     """
     print("Process sortFiles() is running ...")
     file_listNameFileSought = initSortFiles(pathNewDirMedia)
+    ws = websocket.create_connection("ws://localhost:8080")
     while True:
         try:
             try :
-                fileJson = queueJson.get_nowait()  # Récupérer le fileJson de la file d'attente
+                fileJson = queueJson.get_nowait()
             except :
                 fileJson = None
             nameMediaDownloaded = fileSorting.fileSortingMain(pathOutputDirDeluge, pathNewDirMedia, fileJson, file_listNameFileSought)
@@ -122,11 +123,6 @@ def sortFiles(pathOutputDirDeluge, pathNewDirMedia, queueJson):
 def signalHandler(sig, frame):
     logger.info('[INFOS] : Exit ...')
     os._exit(1)
-
-def initWebSocketConnection():
-    # Initialise la connexion WebSocket
-    ws = websocket.create_connection("ws://localhost:8080")
-    return ws
 
 if __name__ == "__main__":
     try:
@@ -154,9 +150,6 @@ if __name__ == "__main__":
             # Gestion de l'interruption clavier
             signal.signal(signal.SIGINT, signalHandler)
 
-            # Initialise la connexion WebSocket
-            ws = initWebSocketConnection()
-
             # Démarrage des processus
             torrentProcess.start()
             sortingProcess.start()
@@ -168,3 +161,4 @@ if __name__ == "__main__":
     except Exception as e:
         logger.error(f"Une erreur s'est produite dans le main.py: {str(e)}")  # Utilisation du logger pour enregistrer les erreurs
         print(f"Une erreur s'est produite dans le main.py: {str(e)}")
+
