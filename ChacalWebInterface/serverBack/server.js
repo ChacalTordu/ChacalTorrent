@@ -10,12 +10,10 @@ const fs = require('fs');
 const path = require('path');
 const cors = require('cors');
 const WebSocket = require('ws');
-const readline = require('readline');
 
 // Define destination folders
 const uploadDestination = './uploadsTorrent';
 const jsonDestination = './uploadsJSON';
-const logFilePath = path.join(__dirname, '../../fileManagement.log');
 let fileName = '';
 
 const app = express();
@@ -28,9 +26,6 @@ const upload = multer({ dest: uploadDestination });
 
 // Define listening port
 const port = process.env.PORT || 3000;
-
-const wss = new WebSocket.Server({ port: 8080 });
-const nbLinesOfLog = 5;
 
 // # *****************************************************************************************************************
 // # *****************************************************************************************************************
@@ -80,6 +75,20 @@ app.post('/uploadJSON', (req, res) => {
   }
 });
 
+const wss = new WebSocket.Server({ port: 8080 });
+
+wss.on('connection', (ws) => {
+  console.log('Client connecté au serveur WebSocket');
+  
+  // Écoute des messages envoyés par le client
+  ws.on('message', (message) => {
+    io.emit('mediaDownloaded', message);
+    console.log('Message reçu du client :', message);
+  });
+});
+
+console.log('Serveur WebSocket en écoute sur le port 8080'); // Message de log indiquant que le serveur WebSocket est démarré
+
 // # *****************************************************************************************************************
 // # *****************************************************************************************************************
 // # I N I T   F U N C T I O N S          
@@ -121,35 +130,6 @@ function writeJSONToFile(jsonData) {
   }
 }
 
-/**
- * Reads Last Lines of Log File
- * Reads the last few lines of a specified log file and sends them to WebSocket clients.
- * @param {number} numLines - Number of lines to read from the log file
- */
-function readLastLines(numLines) {
-  const logFilePath = path.join(__dirname, '../../fileManagement.log');
-  const lines = [];
-  const rl = readline.createInterface({
-    input: fs.createReadStream(logFilePath),
-    crlfDelay: Infinity
-  });
-
-  rl.on('line', (line) => {
-    lines.push(line);
-    if (lines.length > numLines) {
-      lines.shift(); // Remove first line if list exceeds requested line count
-    }
-  });
-
-  rl.on('close', () => {
-    wss.clients.forEach((client) => {
-      if (client.readyState === WebSocket.OPEN) {
-        client.send(lines.join('\n')); // Send last lines to WebSocket clients
-      }
-    });
-  });
-}
-
 // # *****************************************************************************************************************
 // # *****************************************************************************************************************
 // # M A I N   F U N C T I O N S          
@@ -159,13 +139,6 @@ function readLastLines(numLines) {
 // Ensure directories exist
 ensureDirectoryExists(path.join(__dirname, uploadDestination));
 ensureDirectoryExists(path.join(__dirname, jsonDestination));
-
-fs.watchFile(logFilePath, (curr, prev) => {
-  readLastLines(nbLinesOfLog); // Read last lines again when log file is modified
-});
-
-// Read last lines on server startup
-readLastLines(nbLinesOfLog);
 
 /**
  * Starts the HTTP server
