@@ -112,6 +112,7 @@ def sortFiles(pathOutputDirDeluge, pathNewDirMedia, queueJson):
                 fileJson = None
             nameMediaDownloaded = fileSorting.fileSortingMain(pathOutputDirDeluge, pathNewDirMedia, fileJson, file_listNameFileSought)
             if nameMediaDownloaded is not None:
+                ws.send(nameMediaDownloaded)
                 logger.info(f"[OK] : Fichier {nameMediaDownloaded} téléchargé et trié avec succès")
         except ValueError as e:
             logger.error(f"[ERR] : Value Error {str(e)}")
@@ -121,6 +122,11 @@ def sortFiles(pathOutputDirDeluge, pathNewDirMedia, queueJson):
 def signalHandler(sig, frame):
     logger.info('[INFOS] : Exit ...')
     os._exit(1)
+
+def initWebSocketConnection():
+    # Initialise la connexion WebSocket
+    ws = websocket.create_connection("ws://localhost:8080")
+    return ws
 
 if __name__ == "__main__":
     try:
@@ -147,6 +153,9 @@ if __name__ == "__main__":
 
             # Gestion de l'interruption clavier
             signal.signal(signal.SIGINT, signalHandler)
+
+            # Initialise la connexion WebSocket
+            ws = initWebSocketConnection()
 
             # Démarrage des processus
             torrentProcess.start()
