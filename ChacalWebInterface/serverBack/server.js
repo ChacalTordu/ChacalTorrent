@@ -76,18 +76,21 @@ app.post('/uploadJSON', (req, res) => {
 });
 
 const wss = new WebSocket.Server({ port: 8080 });
+console.log('Serveur WebSocket en écoute sur le port 8080');
 
 wss.on('connection', (ws) => {
   console.log('Client connecté au serveur WebSocket');
   
   // Écoute des messages envoyés par le client
   ws.on('message', (message) => {
-    io.emit('mediaDownloaded', message);
-    console.log('Message reçu du client :', message);
+    console.log("Message received : ", message)
+    wss.clients.forEach(client => {
+      if (client.readyState === WebSocket.OPEN) {
+        client.send(message);
+      }
+    });
   });
 });
-
-console.log('Serveur WebSocket en écoute sur le port 8080'); // Message de log indiquant que le serveur WebSocket est démarré
 
 // # *****************************************************************************************************************
 // # *****************************************************************************************************************
