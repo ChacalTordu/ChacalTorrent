@@ -76,7 +76,7 @@ def renameDirectory(path_dir):
         # Renommer le répertoire
         os.rename(path_dir, path_newDirectory)
         logger.info(f"[OK] : Le dossier a été renommé avec succès en '{new_name}'.")
-        return path_newDirectory
+        return path_newDirectory, new_name
     except Exception as e:
         logger.error(f"[ERR] Error occurred while renaming directory: {str(e)}")
         return None

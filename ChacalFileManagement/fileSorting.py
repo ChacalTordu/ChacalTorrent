@@ -45,8 +45,8 @@ def checkMatchingFiles(path_newDirMedia, path_outputDirDeluge, file_listNameFile
                     with open(file_listNameFileSought, 'w') as file:
                         file.write('\n'.join(list_nameFileSought))
                     pathTarget = os.path.dirname(pathTarget)
-                    common.renameDirectory(pathTarget)
-                    return name
+                    useless, newName = common.renameDirectory(pathTarget)
+                    return newName
                 except Exception as e:
                     raise Exception(f"[ERR] Erreur lors du déplacement de {name} : {str(e)}\n[INFOS] : pathSource = {pathSource}\n[INFOS] : pathTarget = {pathTarget}")
     return None
