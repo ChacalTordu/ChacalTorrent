@@ -10,23 +10,43 @@ Author: ChacalTordu
   <div class="myApp">
     <div class="title"><p>Chacal Torrent</p></div>
       <div class="cards" >
-          <cardTorrent @downloadClicked="handleDownloadClicked" v-for="(item, rowIndex) in componentList" :key="rowIndex"/>
+          <cardTorrent @downloadClicked="handleDownloadClicked" v-for="(item, rowIndex) in componentList" :key="rowIndex" :item="item" ref="childComponent" />
       </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from "vue";
-import cardTorrent from "./components/cardTorrent.vue";
+  import { ref } from "vue";
+  import cardTorrent from "./components/cardTorrent.vue";
 
-const componentList = ref([cardTorrent]);
- 
-function handleDownloadClicked() {
-  // console.log("callback handleDownloadClicked appelé")
-  componentList.value.push(cardTorrent)
-}
+  const socket = new WebSocket('ws://localhost:8080');
+  const componentList = ref([cardTorrent]);
 
+  function handleDownloadClicked(string_nameMedia) {
+    componentList.value[componentList.value.length] = string_nameMedia;
+  }
+
+  socket.addEventListener('open', () => {
+    console.log('Connexion WebSocket établie');
+  });
+
+  socket.addEventListener('message', (event) => {
+    console.log('Événement reçu du serveur WebSocket:', event.data);
+    handleMediaDownloaded(event.data);
+  });
+
+  function handleMediaDownloaded(blob) {
+    blob.text().then(text => {
+      const matchingComponent = componentList.value.find(item => item === text);
+      if (matchingComponent) {
+        console.log("Matching component found:", matchingComponent);
+      } else {
+        console.log("Media download but, no media match");
+      }
+    });
+  }
 </script>
+
 
 <style scoped>
 .myApp {

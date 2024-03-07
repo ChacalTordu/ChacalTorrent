@@ -10,7 +10,7 @@
           </div>
       </div>
       <div v-if="bool_isFlipped" class="back">
-        <div class="backContent">
+        <div class="backContent" @mediaDownloaded="handleMediaDownloaded">
           <!-- <mediaPoster /> -->
           <div v-if="bool_flagStep1">Sends data to current server ... (1/3)</div>
           <div v-if="bool_flagStep2">Download torrent in progress ... (2/3)</div>
@@ -44,6 +44,7 @@
     const formData_formData = new FormData();
 
     const emits = defineEmits(['downloadClicked'])
+    const props = defineProps({nameMediaDownloaded : String})
     
     const bool_flagErrorMessage = ref(false);
     const bool_isFlipped = ref(false);
@@ -87,17 +88,22 @@
         if(validateTorrent()){
           if(formattingJsonFile()){
             bool_isFlipped.value = true;
-            emits('downloadClicked');
+            emits('downloadClicked',let_newMediaInfo.string_title);
             if(sendDataToServer()){ 
               bool_downloading.value = true;
               bool_flagStep1.value = true;
-              mediaPoster.searchMovie(let_newMediaInfo.string_title);
+              // mediaPoster.searchMovie(let_newMediaInfo.string_title);
             }else{bool_flagErrorMessage.value = true}
           }else{bool_flagErrorMessage.value = true;return}
         }else{bool_flagErrorMessage.value = true;return}
       }else{bool_flagErrorMessage.value = true;return}
     }
 
+    function handleMediaDownloaded() {
+      bool_flagStep2.value = false;
+      bool_flagStep3.value = true;
+      console.log(`Le média a été téléchargé.`);
+    }
     // # *****************************************************************************************************************
     // # *****************************************************************************************************************
     // # M I N O R   F U N C T I O N S          
