@@ -12,9 +12,9 @@
       <div v-if="bool_isFlipped" class="back">
         <div class="backContent">
           <!-- <mediaPoster /> -->
-          <div v-if="bool_flagStep1">Sends data to current server ... (1/3)</div>
-          <div v-if="bool_flagStep2">Download torrent in progress ... (2/3)</div>
-          <div v-if="bool_flagStep3">Sorting downloaded files ... (3/3)</div>
+          <div v-if="bool_flagStep1">Sends data to current server ... (1/2)</div>
+          <div v-if="bool_flagStep2">Download torrent in progress ... (2/2)</div>
+          <div v-if="bool_flagStep3">Torrent {{ nameMediaCard }} download successfully !</div>
           <div><Spinner v-if="bool_downloading"/></div>
           <div><Error v-if="bool_downloadError"/></div>
           <div><Success v-if="bool_downloadSuceed"/></div>
@@ -108,10 +108,9 @@
 
     function handleDownloadCardClicked() {
       bool_flagStep2.value = false;
-      // bool_flagStep3.value = true;
       bool_downloading.value = false;
+      bool_flagStep3.value = true;
       bool_downloadSuceed.value = true;
-      // console.log(`Le média a été téléchargé.`);
     }
     // # *****************************************************************************************************************
     // # *****************************************************************************************************************
