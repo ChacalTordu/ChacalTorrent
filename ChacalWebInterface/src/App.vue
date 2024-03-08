@@ -45,6 +45,7 @@ function handleMediaDownloaded(blob) {
 
 <style scoped>
 .myApp {
+  background-color: white;
   width: 100%;
   display: flex;
   flex-direction: column;
