@@ -14,8 +14,6 @@ Author: ChacalTordu
 </template>
   
 <script setup>
-import { defineProps, defineEmits } from 'vue';
-
 const props = defineProps({ textButton: String });
 const emit = defineEmits();
 
@@ -38,9 +36,10 @@ const abort = () => {
     justify-content: center;
     align-items: center;
     width: 150px;
+    max-width: 70px;
     padding: 10px 20px;
     font-size: 16px;
-    background-color: var(--red-color-4);
+    background-color: var(--accent-color-red);
     color: #ffffff;
     border: none;
     border-radius: 30px;
@@ -53,6 +52,6 @@ const abort = () => {
  * Defines hover effect for the abort button.
  */
 .myButton:hover {
-    background-color:  var(--red-color-5);
+    background-color:  var(--black-color-2);
 }
 </style>

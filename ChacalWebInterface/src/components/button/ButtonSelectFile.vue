@@ -12,8 +12,6 @@ Author: ChacalTordu
 </template>
 
 <script setup>
-import { defineProps, defineEmits } from 'vue';
-
 const props = defineProps(['fileFormat']);
 const emit = defineEmits(['fileSelected']);
 
@@ -38,10 +36,9 @@ const handleFileSelect = (event) => {
 * Defines styles for the file selection button.
 */
 .myButton {
-  margin-top: 10px;
   padding: 4px 20px;
   font-size: 16px;
-  background-color: var(--green2-color-3);
+  background-color: var(--secondary-color-4);
   color: #ffffff;
   border: none;
   border-radius: 30px;
@@ -54,7 +51,7 @@ const handleFileSelect = (event) => {
 * Defines hover effect for the file selection button.
 */
 .myButton:hover {
-  background-color:var(--green2-color-5);
+  background-color:var(--black-color-2);
 }
 
 /**

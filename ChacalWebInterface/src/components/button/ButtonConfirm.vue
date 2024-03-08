@@ -11,8 +11,6 @@ Author: ChacalTordu
 </template>
 
 <script setup>
-import { defineProps, defineEmits } from 'vue';
-
 const props = defineProps({ textButton: String });
 const emit = defineEmits(['confirmClicked']);
 
@@ -37,7 +35,7 @@ const handleClick = () => {
   width: 150px;
   padding: 10px 20px;
   font-size: 16px;
-  background-color: var(--green2-color-3);
+  background-color: var(--secondary-color-4);
   color: #ffffff;
   border: none;
   border-radius: 30px;
@@ -50,6 +48,6 @@ const handleClick = () => {
 * Defines hover effect for the confirm button.
 */
 .myButton:hover {
-  background-color: var(--green2-color-5);
+  background-color: var(--black-color-2);
 }
 </style>

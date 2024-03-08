@@ -1,10 +1,8 @@
-/**
- * Server.js - File Upload and WebSocket Server
- *
- * This script sets up an Express server to handle file uploads and JSON data, as well as WebSocket connections.
- * It listens for uploaded files, saves them to designated folders, and processes JSON data, writing it to files.
- * Additionally, it establishes a WebSocket server to provide real-time updates to clients based on log file changes.
- */
+// # *****************************************************************************************************************
+// # *****************************************************************************************************************
+// # V A R I A B L E         
+// # *****************************************************************************************************************
+// # *****************************************************************************************************************
 
 const express = require('express');
 const multer = require('multer');
@@ -12,28 +10,28 @@ const fs = require('fs');
 const path = require('path');
 const cors = require('cors');
 const WebSocket = require('ws');
-const readline = require('readline');
 
 // Define destination folders
-const uploadDestination = 'uploadsTorrent/';
-const jsonDestination = 'uploadsJSON/';
+const uploadDestination = './uploadsTorrent';
+const jsonDestination = './uploadsJSON';
 let fileName = '';
 
 const app = express();
+// Configure CORS
+app.use(cors());
+// Middleware
+app.use(express.json()); // JSON data support
+app.use(express.urlencoded({ extended: true })); // URL encoded data support
 const upload = multer({ dest: uploadDestination });
 
 // Define listening port
 const port = process.env.PORT || 3000;
 
-const wss = new WebSocket.Server({ port: 8080 });
-const nbLinesOfLog = 5;
-
-// Configure CORS
-app.use(cors());
-
-// Middleware
-app.use(express.json()); // JSON data support
-app.use(express.urlencoded({ extended: true })); // URL encoded data support
+// # *****************************************************************************************************************
+// # *****************************************************************************************************************
+// # R O U T E   F U N C T I O N S          
+// # *****************************************************************************************************************
+// # *****************************************************************************************************************
 
 /**
  * POST Route for File Upload
@@ -77,6 +75,42 @@ app.post('/uploadJSON', (req, res) => {
   }
 });
 
+const wss = new WebSocket.Server({ port: 8080 });
+console.log('Serveur WebSocket en écoute sur le port 8080');
+
+wss.on('connection', (ws) => {
+  console.log('Client connecté au serveur WebSocket');
+  
+  // Écoute des messages envoyés par le client
+  ws.on('message', (message) => {
+    console.log("Message received : ", message)
+    wss.clients.forEach(client => {
+      if (client.readyState === WebSocket.OPEN) {
+        client.send(message);
+      }
+    });
+  });
+});
+
+// # *****************************************************************************************************************
+// # *****************************************************************************************************************
+// # I N I T   F U N C T I O N S          
+// # *****************************************************************************************************************
+// # *****************************************************************************************************************
+
+// Function to ensure directory exists, create if not
+function ensureDirectoryExists (directory) {
+  if (!fs.existsSync(directory)) {
+    fs.mkdirSync(directory, { recursive: true });
+  }
+};
+
+// # *****************************************************************************************************************
+// # *****************************************************************************************************************
+// # C O M M O N   F U N C T I O N S          
+// # *****************************************************************************************************************
+// # *****************************************************************************************************************
+
 /**
  * Writes JSON Data to File
  * Writes received JSON data to a file in JSON format.
@@ -99,6 +133,16 @@ function writeJSONToFile(jsonData) {
   }
 }
 
+// # *****************************************************************************************************************
+// # *****************************************************************************************************************
+// # M A I N   F U N C T I O N S          
+// # *****************************************************************************************************************
+// # *****************************************************************************************************************
+
+// Ensure directories exist
+ensureDirectoryExists(path.join(__dirname, uploadDestination));
+ensureDirectoryExists(path.join(__dirname, jsonDestination));
+
 /**
  * Starts the HTTP server
  * Starts the Express server on the defined port.
@@ -106,41 +150,3 @@ function writeJSONToFile(jsonData) {
 app.listen(port, () => {
   console.log(`Serveur HTTP démarré sur le port ${port}`); // HTTP server started on port
 });
-
-/**
- * Reads Last Lines of Log File
- * Reads the last few lines of a specified log file and sends them to WebSocket clients.
- * @param {number} numLines - Number of lines to read from the log file
- */
-function readLastLines(numLines) {
-  const logFilePath = path.join(__dirname, '../../fileManagement.log');
-  const lines = [];
-  const rl = readline.createInterface({
-    input: fs.createReadStream(logFilePath),
-    crlfDelay: Infinity
-  });
-
-  rl.on('line', (line) => {
-    lines.push(line);
-    if (lines.length > numLines) {
-      lines.shift(); // Remove first line if list exceeds requested line count
-    }
-  });
-
-  rl.on('close', () => {
-    wss.clients.forEach((client) => {
-      if (client.readyState === WebSocket.OPEN) {
-        client.send(lines.join('\n')); // Send last lines to WebSocket clients
-      }
-    });
-  });
-}
-
-// Add watch for log file changes
-const logFilePath = path.join(__dirname, '../../fileManagement.log');
-fs.watchFile(logFilePath, (curr, prev) => {
-  readLastLines(nbLinesOfLog); // Read last lines again when log file is modified
-});
-
-// Read last lines on server startup
-readLastLines(nbLinesOfLog);

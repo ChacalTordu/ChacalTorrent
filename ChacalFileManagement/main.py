@@ -3,6 +3,7 @@ import json
 import signal
 import multiprocessing
 import logging
+import websocket
 
 from logger_config import logger
 import torrentAndJsonManagement
@@ -29,11 +30,11 @@ def loadPaths(jsonFile):
                 data = json.load(f)
             
             if data is not None:
-                pathSourceDirJson = data.get('sourceDirJson')
-                pathSourceDirTorrent = data.get('sourceDirTorrent')
-                pathInputDirDeluge = data.get('inputDirDeluge')
-                pathOutputDirDeluge = data.get('outputDirDeluge')
-                pathNewDirMedia = data.get('mediaDir')
+                pathSourceDirJson = data.get('path_sourceDirJson')
+                pathSourceDirTorrent = data.get('path_sourceDirTorrent')
+                pathInputDirDeluge = data.get('path_inputDirDeluge')
+                pathOutputDirDeluge = data.get('path_outputDirDeluge')
+                pathNewDirMedia = data.get('path_mediaDir')
 
                 # Créer le dossier s'il n'existe pas
                 if pathNewDirMedia and not os.path.exists(pathNewDirMedia):
@@ -57,6 +58,7 @@ def manageTorrentAndJson(pathSourceDirJson, pathSourceDirTorrent, pathInputDirDe
     """
     Gère les fichiers torrent et JSON.
     """
+    print("Process manageTorrentAndJson() is running ...")
     while True:
         try:
             fileJson, error = torrentAndJsonManagement.torrentAndJsonManagementMain(pathSourceDirJson, pathSourceDirTorrent, pathInputDirDeluge)
@@ -100,15 +102,18 @@ def sortFiles(pathOutputDirDeluge, pathNewDirMedia, queueJson):
     """
     Trie les fichiers.
     """
+    print("Process sortFiles() is running ...")
     file_listNameFileSought = initSortFiles(pathNewDirMedia)
+    ws = websocket.create_connection("ws://localhost:8080")
     while True:
         try:
             try :
-                fileJson = queueJson.get_nowait()  # Récupérer le fileJson de la file d'attente
+                fileJson = queueJson.get_nowait()
             except :
                 fileJson = None
             nameMediaDownloaded = fileSorting.fileSortingMain(pathOutputDirDeluge, pathNewDirMedia, fileJson, file_listNameFileSought)
             if nameMediaDownloaded is not None:
+                ws.send(nameMediaDownloaded)
                 logger.info(f"[OK] : Fichier {nameMediaDownloaded} téléchargé et trié avec succès")
         except ValueError as e:
             logger.error(f"[ERR] : Value Error {str(e)}")
@@ -122,7 +127,14 @@ def signalHandler(sig, frame):
 if __name__ == "__main__":
     try:
         # Charge les chemins configurés dans le fichier path.json dans le dossier config
-        pathSourceDirJson, pathSourceDirTorrent, pathInputDirDeluge, pathOutputDirDeluge, pathNewDirMedia, error = loadPaths(os.path.join('config', 'path.json'))  
+        (
+            pathSourceDirJson,
+            pathSourceDirTorrent,
+            pathInputDirDeluge,
+            pathOutputDirDeluge,
+            pathNewDirMedia,
+            error,
+        ) = loadPaths(os.path.join(os.path.dirname(__file__), "../config", "config.json"))
         if error:
             logger.error(f"Une erreur s'est produite lors du chargement des chemins dans le fichier path.json dans le dossier config/ : {error}")
         else:
@@ -149,3 +161,4 @@ if __name__ == "__main__":
     except Exception as e:
         logger.error(f"Une erreur s'est produite dans le main.py: {str(e)}")  # Utilisation du logger pour enregistrer les erreurs
         print(f"Une erreur s'est produite dans le main.py: {str(e)}")
+

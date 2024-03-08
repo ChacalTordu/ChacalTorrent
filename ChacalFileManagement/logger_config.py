@@ -1,18 +1,28 @@
 import logging
 import os
 
+def clear_file(file_path):
+    """
+    Efface le contenu du fichier spécifié.
+    """
+    with open(file_path, 'w'):
+        pass  # L'ouverture en mode 'w' avec 'with' efface le contenu du fichier
+
 def setup_logger():
     """
     Configure le système de journalisation.
     """
     # Obtenez le chemin absolu du répertoire parent du répertoire actuel
-    parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+    parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), './'))
 
     # Construisez le chemin complet du fichier de log dans le répertoire parent
     log_file_path = os.path.join(parent_dir, 'fileManagement.log')
 
     # Assurez-vous que le répertoire parent existe, sinon créez-le
     os.makedirs(parent_dir, exist_ok=True)
+
+    # Effacer le contenu du fichier de journalisation s'il existe déjà
+    clear_file(log_file_path)
 
     logging.basicConfig(filename=log_file_path, level=logging.INFO, encoding='utf-8')
 

@@ -46,7 +46,8 @@ Author: ChacalTordu
     background-color: var(--vt-c-text-dark-2);
     border-radius: 5px;
     padding: 10px;
-    box-shadow: 0.5px 2px 1px rgba(0, 0, 0, 0.2);
+    box-shadow: 15px 15px 30px #bebebe,
+                -15px -15px 30px #ffffff;
     overflow-y: auto; /* Vertical scrolling if height exceeds */
   }
   
