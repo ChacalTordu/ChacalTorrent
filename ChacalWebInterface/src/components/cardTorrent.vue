@@ -10,7 +10,7 @@
           </div>
       </div>
       <div v-if="bool_isFlipped" class="back">
-        <div class="backContent" @mediaDownloaded="handleMediaDownloaded">
+        <div class="backContent">
           <!-- <mediaPoster /> -->
           <div v-if="bool_flagStep1">Sends data to current server ... (1/3)</div>
           <div v-if="bool_flagStep2">Download torrent in progress ... (2/3)</div>
@@ -26,7 +26,7 @@
 
   
   <script setup>
-    import { ref } from 'vue';
+    import { ref, watch } from 'vue';
     import axios from 'axios'
 
     import { class_MediaInfo } from '@/models/class_MediaInfo';
@@ -43,8 +43,8 @@
     let let_newMediaInfo = new class_MediaInfo();
     const formData_formData = new FormData();
 
-    const emits = defineEmits(['downloadClicked'])
-    const props = defineProps({nameMediaDownloaded : String})
+    const emits = defineEmits(['downloadClicked']);
+    const props = defineProps({ nameMediaCard: String, bool_mediaDownload: Boolean });
     
     const bool_flagErrorMessage = ref(false);
     const bool_isFlipped = ref(false);
@@ -56,6 +56,13 @@
     const bool_flagStep1 = ref(null);
     const bool_flagStep2 = ref(null);
     const bool_flagStep3 = ref(null);
+
+    // Ajout d'un effet de surveillance sur la prop pour détecter les changements
+    watch(() => props.bool_mediaDownload, (newValue, oldValue) => {
+      if (newValue !== oldValue) {
+        handleDownloadCardClicked(); // Appel de la fonction lorsque la prop change de valeur
+      }
+    });
 
     // # *****************************************************************************************************************
     // # *****************************************************************************************************************
@@ -99,10 +106,12 @@
       }else{bool_flagErrorMessage.value = true;return}
     }
 
-    function handleMediaDownloaded() {
+    function handleDownloadCardClicked() {
       bool_flagStep2.value = false;
-      bool_flagStep3.value = true;
-      console.log(`Le média a été téléchargé.`);
+      // bool_flagStep3.value = true;
+      bool_downloading.value = false;
+      bool_downloadSuceed.value = true;
+      // console.log(`Le média a été téléchargé.`);
     }
     // # *****************************************************************************************************************
     // # *****************************************************************************************************************

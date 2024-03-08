@@ -1,52 +1,47 @@
-<!--
-App.vue - Main Application Component
-
-This component represents the main application layout and functionality.
-
-Author: ChacalTordu
--->
-
 <template>
   <div class="myApp">
     <div class="title"><p>Chacal Torrent</p></div>
-      <div class="cards" >
-          <cardTorrent @downloadClicked="handleDownloadClicked" v-for="(item, rowIndex) in componentList" :key="rowIndex" :item="item" ref="childComponent" />
-      </div>
+    <div class="cards">
+      <cardTorrent @downloadClicked="handleDownloadClicked" v-for="(item, index) in componentList" :key="index" :mediaCardDownload="item.media" :bool_mediaDownload="item.bool_mediaDownload"/>
+    </div>
   </div>
 </template>
 
 <script setup>
-  import { ref } from "vue";
-  import cardTorrent from "./components/cardTorrent.vue";
+import { ref } from "vue";
+import cardTorrent from "./components/cardTorrent.vue";
 
-  const socket = new WebSocket('ws://localhost:8080');
-  const componentList = ref([cardTorrent]);
+const socket = new WebSocket('ws://localhost:8080');
+const componentList = ref([]);
 
-  function handleDownloadClicked(string_nameMedia) {
-    componentList.value[componentList.value.length] = string_nameMedia;
-  }
+componentList.value.push({ media: '', bool_mediaDownload: false });
 
-  socket.addEventListener('open', () => {
-    console.log('Connexion WebSocket établie');
+function handleDownloadClicked(string_nameMedia) {
+  componentList.value[componentList.value.length - 1].media = string_nameMedia;
+  componentList.value.push({ media: '', bool_mediaDownload: false });
+}
+
+socket.addEventListener('open', () => {
+  console.log('Connexion WebSocket établie');
+});
+
+socket.addEventListener('message', (event) => {
+  handleMediaDownloaded(event.data);
+});
+
+function handleMediaDownloaded(blob) {
+  blob.text().then(text => {
+    console.log("WebSocket received : ", text)
+    const matchingIndex = componentList.value.findIndex(item => item.media === text);
+    if (matchingIndex !== -1) {
+      componentList.value[matchingIndex].bool_mediaDownload = true;
+      console.log("Matching component found:", componentList.value[matchingIndex]);
+    } else {
+      console.log("Media download but, no media match");
+    }
   });
-
-  socket.addEventListener('message', (event) => {
-    console.log('Événement reçu du serveur WebSocket:', event.data);
-    handleMediaDownloaded(event.data);
-  });
-
-  function handleMediaDownloaded(blob) {
-    blob.text().then(text => {
-      const matchingComponent = componentList.value.find(item => item === text);
-      if (matchingComponent) {
-        console.log("Matching component found:", matchingComponent);
-      } else {
-        console.log("Media download but, no media match");
-      }
-    });
-  }
+};
 </script>
-
 
 <style scoped>
 .myApp {
