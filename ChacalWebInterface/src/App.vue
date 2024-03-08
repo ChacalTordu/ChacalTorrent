@@ -35,13 +35,10 @@ function handleMediaDownloaded(blob) {
     const matchingIndex = componentList.value.findIndex(item => item.media === text);
     if (matchingIndex !== -1) {
       componentList.value[matchingIndex].bool_mediaDownload = true;
-      setTimeout(() => {
-        componentList.value[matchingIndex].pop();
-      }, 1000); 
-      // console.log("Matching component found:", componentList.value[matchingIndex]);
-    }// else {
-    //   console.log("Media download but, no media match");
-    // }
+      // setTimeout(() => {
+      //   componentList.value.slice(matchingIndex, 1);
+      // }, 1000); 
+    }
   });
 };
 </script>
