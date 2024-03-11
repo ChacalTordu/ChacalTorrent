@@ -24,7 +24,7 @@ def loadPaths(jsonFile):
     try:
         if not os.path.exists(jsonFile):
             logger.error(f"Erreur: Le fichier {jsonFile} n'existe pas.")
-            return None, None, None, None, None, None, f"Erreur: Le fichier {jsonFile} n'existe pas."
+            return None, None, None, None, None, f"Erreur: Le fichier {jsonFile} n'existe pas."
         else:
             with open(jsonFile, 'r') as f:
                 data = json.load(f)

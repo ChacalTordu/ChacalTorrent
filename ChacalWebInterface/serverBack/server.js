@@ -76,7 +76,7 @@ app.post('/uploadJSON', (req, res) => {
 });
 
 const wss = new WebSocket.Server({ port: 8080 });
-console.log('Serveur WebSocket en écoute sur le port 8080');
+console.log(`Serveur WebSocket en écoute sur le port ${wss.address().port}`);
 
 wss.on('connection', (ws) => {
   console.log('Client connecté au serveur WebSocket');
