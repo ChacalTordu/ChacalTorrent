@@ -1,58 +1,12 @@
 import os
-import json
 import signal
 import multiprocessing
-import logging
 import websocket
 
 from logger_config import logger
+import common
 import torrentAndJsonManagement
 import fileSorting
-
-def loadPaths(jsonFile):
-    """
-    Charge les chemins à partir du fichier JSON spécifié.
-
-    Args:
-        jsonFile (str): Chemin vers le fichier JSON contenant les chemins.
-
-    Returns:
-        tuple: Un tuple contenant les chemins (pathSourceDirJson, pathSourceDirTorrent, newDirMedia, pathInputDirDeluge, pathOutputDirDeluge, pathNewDirMedia, error)
-    """
-    logger = logging.getLogger(__name__)
-
-    try:
-        if not os.path.exists(jsonFile):
-            logger.error(f"Erreur: Le fichier {jsonFile} n'existe pas.")
-            return None, None, None, None, None, f"Erreur: Le fichier {jsonFile} n'existe pas."
-        else:
-            with open(jsonFile, 'r') as f:
-                data = json.load(f)
-            
-            if data is not None:
-                pathSourceDirJson = data.get('path_sourceDirJson')
-                pathSourceDirTorrent = data.get('path_sourceDirTorrent')
-                pathInputDirDeluge = data.get('path_inputDirDeluge')
-                pathOutputDirDeluge = data.get('path_outputDirDeluge')
-                pathNewDirMedia = data.get('path_mediaDir')
-
-                # Créer le dossier s'il n'existe pas
-                if pathNewDirMedia and not os.path.exists(pathNewDirMedia):
-                    os.makedirs(pathNewDirMedia)
-
-                return pathSourceDirJson, pathSourceDirTorrent, pathInputDirDeluge, pathOutputDirDeluge, pathNewDirMedia, None
-            else:
-                logger.error(f"Erreur: Le fichier {jsonFile} est vide.")
-                return None, None, None, None, None, f"Erreur: Le fichier {jsonFile} est vide."
-    except FileNotFoundError:
-        logger.error(f"Erreur: Le fichier {jsonFile} n'existe pas.")
-        return None, None, None, None, None, f"Erreur: Le fichier {jsonFile} n'existe pas."
-    except json.JSONDecodeError:
-        logger.error(f"Erreur: Impossible de décoder le fichier JSON {jsonFile}.")
-        return None, None, None, None, None, f"Erreur: Impossible de décoder le fichier JSON {jsonFile}."
-    except Exception as e:
-        logger.error(f"Une erreur s'est produite lors du chargement des chemins à partir du fichier JSON : {str(e)}")
-        return None, None, None, None, None, f"Une erreur s'est produite lors du chargement des chemins à partir du fichier JSON : {str(e)}"
 
 def manageTorrentAndJson(pathSourceDirJson, pathSourceDirTorrent, pathInputDirDeluge, queueJson):
     """
@@ -134,7 +88,7 @@ if __name__ == "__main__":
             pathOutputDirDeluge,
             pathNewDirMedia,
             error,
-        ) = loadPaths(os.path.join(os.path.dirname(__file__), "../config", "config.json"))
+        ) = common.loadPaths(os.path.join(os.path.dirname(__file__), "../config", "config.json"))
         if error:
             logger.error(f"Une erreur s'est produite lors du chargement des chemins dans le fichier path.json dans le dossier config/ : {error}")
         else:

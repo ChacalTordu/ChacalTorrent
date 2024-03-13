@@ -1,5 +1,6 @@
 import os
 import shutil
+import json
 
 from logger_config import logger
 import common
@@ -45,11 +46,11 @@ def checkMatchingFiles(path_newDirMedia, path_outputDirDeluge, file_listNameFile
                     with open(file_listNameFileSought, 'w') as file:
                         file.write('\n'.join(list_nameFileSought))
                     pathTarget = os.path.dirname(pathTarget)
-                    useless, newName = common.renameDirectory(pathTarget)
-                    return newName
+                    path_newDir, newName = common.renameDirectory(pathTarget)
+                    return newName, path_newDir
                 except Exception as e:
                     raise Exception(f"[ERR] Erreur lors du déplacement de {name} : {str(e)}\n[INFOS] : pathSource = {pathSource}\n[INFOS] : pathTarget = {pathTarget}")
-    return None
+    return None, None
 
 def createNewFileSought(path_newDirMedia, file_json):
     """
@@ -85,6 +86,51 @@ def createNewFileSought(path_newDirMedia, file_json):
         return file_listNameFileSought
     except Exception as e:
         raise Exception(f"{str(e)}")
+    
+def getFinalPath(path_newDirTarget):
+    """
+    Get the final path for moving the directory based on the media type.
+
+    Returns:
+        str: The final path for moving the directory.
+    """
+    try:
+        path_json = os.path.join(os.path.dirname(__file__), "../config", "config.json") # Load json file
+        media_directories = common.getMediaDirectories(path_json) # Load path from json
+        
+        # Obtenez la liste des fichiers dans le répertoire cible
+        files_in_dir = os.listdir(path_newDirTarget)
+        
+        # Recherchez le premier fichier JSON dans la liste des fichiers
+        json_file = None
+        for file_name in files_in_dir:
+            if file_name.endswith('.json'):
+                json_file = os.path.join(path_newDirTarget, file_name)
+                break
+        
+        # Vérifiez si un fichier JSON a été trouvé
+        if json_file is None:
+            raise FileNotFoundError("No JSON file found in directory.")
+        
+        # Obtenez le type de média du fichier JSON
+        media = common.getMediaTypeFromJson(json_file)
+        
+        # Obtenez le chemin final en fonction du type de média
+        if media == "Movie":
+            final_path = media_directories["path_mediaDirMovie"]
+        elif media == "Cartoon":
+            final_path = media_directories["path_mediaDirCartoon"]
+        elif media == "Shows":
+            final_path = media_directories["path_mediaDirShows"]
+        elif media == "Anime":
+            final_path = media_directories["path_mediaDirAnime"]
+        else:
+            raise ValueError(f"Unknown media type: {media}")
+        
+        return final_path
+    
+    except (FileNotFoundError, json.JSONDecodeError) as e:
+        raise Exception(f"Error while getting final path: {str(e)}")
 
 def fileSortingMain(path_outputDirDeluge, path_newDirMedia, file_json, file_listNameFileSought):
     """
@@ -94,9 +140,12 @@ def fileSortingMain(path_outputDirDeluge, path_newDirMedia, file_json, file_list
     """
     try:
         if file_json is not None:
-            checkValidateParameter(path_outputDirDeluge, path_newDirMedia, file_json, file_listNameFileSought)          # Check parameter
-            createNewFileSought(path_newDirMedia, file_json)                                                            # Create list of seek nameMedia
-        nameMediaDownloaded = checkMatchingFiles(path_newDirMedia, path_outputDirDeluge, file_listNameFileSought)       # Check matching newmedia depends on seekNameMedia
+            checkValidateParameter(path_outputDirDeluge, path_newDirMedia, file_json, file_listNameFileSought)                          # Check parameter
+            createNewFileSought(path_newDirMedia, file_json)                                                                            # Create list of seek nameMedia
+        nameMediaDownloaded, path_newDir = checkMatchingFiles(path_newDirMedia, path_outputDirDeluge, file_listNameFileSought)          # Check matching newmedia depends on seekNameMedia
+        if path_newDir is not None:
+            # print(f"Fichier téléchargé\nPath source: {path_newDir}\nPath Target: {getFinalPath(path_newDir)}")
+            shutil.move(path_newDir,getFinalPath(path_newDir))                                                                          # Move the final folder into the good one                                                                                  
         return nameMediaDownloaded
     except (ValueError, FileNotFoundError) as e:
         raise ValueError(f"{str(e)}")
