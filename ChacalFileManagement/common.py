@@ -1,8 +1,79 @@
 import os
 import json
 import shutil
+import logging
 
 from logger_config import logger
+
+def getMediaDirectories(path_json):
+    """
+    Retrieve media directories paths from a JSON file.
+
+    Args:
+        json_file_path (str): The path to the JSON file.
+
+    Returns:
+        dict: A dictionary containing the paths of media directories.
+    """
+    try:
+        with open(path_json, 'r') as file:
+            data = json.load(file)
+            path_mediaDirectories = {
+                "path_mediaDirMovie": data.get("path_mediaDirMovie"),
+                "path_mediaDirCartoon": data.get("path_mediaDirCartoon"),
+                "path_mediaDirShows": data.get("path_mediaDirShows"),
+                "path_mediaDirAnime": data.get("path_mediaDirAnime")
+            }
+            return path_mediaDirectories
+    except FileNotFoundError as e:
+        raise FileNotFoundError(f"{e}")
+    except json.JSONDecodeError as e:
+        raise json.JSONDecodeError(f"{e}")
+
+def loadPaths(jsonFile):
+    """
+    Charge les chemins à partir du fichier JSON spécifié.
+
+    Args:
+        jsonFile (str): Chemin vers le fichier JSON contenant les chemins.
+
+    Returns:
+        tuple: Un tuple contenant les chemins (pathSourceDirJson, pathSourceDirTorrent, newDirMedia, pathInputDirDeluge, pathOutputDirDeluge, pathNewDirMedia, error)
+    """
+    logger = logging.getLogger(__name__)
+
+    try:
+        if not os.path.exists(jsonFile):
+            logger.error(f"Erreur: Le fichier {jsonFile} n'existe pas.")
+            return None, None, None, None, None, f"Erreur: Le fichier {jsonFile} n'existe pas."
+        else:
+            with open(jsonFile, 'r') as f:
+                data = json.load(f)
+            
+            if data is not None:
+                pathSourceDirJson = data.get('path_sourceDirJson')
+                pathSourceDirTorrent = data.get('path_sourceDirTorrent')
+                pathInputDirDeluge = data.get('path_inputDirDeluge')
+                pathOutputDirDeluge = data.get('path_outputDirDeluge')
+                pathNewDirMedia = data.get('path_mediaDir')
+
+                # Créer le dossier s'il n'existe pas
+                if pathNewDirMedia and not os.path.exists(pathNewDirMedia):
+                    os.makedirs(pathNewDirMedia)
+
+                return pathSourceDirJson, pathSourceDirTorrent, pathInputDirDeluge, pathOutputDirDeluge, pathNewDirMedia, None
+            else:
+                logger.error(f"Erreur: Le fichier {jsonFile} est vide.")
+                return None, None, None, None, None, f"Erreur: Le fichier {jsonFile} est vide."
+    except FileNotFoundError:
+        logger.error(f"Erreur: Le fichier {jsonFile} n'existe pas.")
+        return None, None, None, None, None, f"Erreur: Le fichier {jsonFile} n'existe pas."
+    except json.JSONDecodeError:
+        logger.error(f"Erreur: Impossible de décoder le fichier JSON {jsonFile}.")
+        return None, None, None, None, None, f"Erreur: Impossible de décoder le fichier JSON {jsonFile}."
+    except Exception as e:
+        logger.error(f"Une erreur s'est produite lors du chargement des chemins à partir du fichier JSON : {str(e)}")
+        return None, None, None, None, None, f"Une erreur s'est produite lors du chargement des chemins à partir du fichier JSON : {str(e)}"
 
 def reformatJson(file_inputJson):
     """
