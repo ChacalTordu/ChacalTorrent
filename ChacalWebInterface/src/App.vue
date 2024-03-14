@@ -19,6 +19,8 @@ componentList.value.push({ media: '', bool_mediaDownload: false });
 function handleDownloadClicked(string_nameMedia) {
   componentList.value[componentList.value.length - 1].media = string_nameMedia;
   componentList.value.push({ media: '', bool_mediaDownload: false });
+  // Sauvegarde des données dans le stockage local après chaque modification
+  localStorage.setItem('componentList', JSON.stringify(componentList.value));
 }
 
 socket.addEventListener('open', () => {
@@ -35,6 +37,8 @@ function handleMediaDownloaded(blob) {
     const matchingIndex = componentList.value.findIndex(item => item.media === text);
     if (matchingIndex !== -1) {
       componentList.value[matchingIndex].bool_mediaDownload = true;
+      // Sauvegarde des données dans le stockage local après chaque modification
+      localStorage.setItem('componentList', JSON.stringify(componentList.value));
     }
   });
 };
