@@ -177,7 +177,6 @@
         const responseTorrent = await axios.post('http://localhost:3000/uploadFile', formData_formData);
         console.log('Envoie du Torrent au serveur ...');
         const responseJSON = await axios.post('http://localhost:3000/uploadJSON', jsonMediaInfos);
-        // await axios.post('http://localhost:3000/uploadJSON', jsonMediaInfos);
         console.log('Envoie des informations au serveur ...');
         if ((responseJSON.status === 200)&&(responseTorrent.status === 200)) {
           console.log('Le serveur a confirmé la réception des données JSON et Torrent');
@@ -259,7 +258,7 @@ p{
     display: block;
     width: 160px;
     height: 160%;
-    background: linear-gradient(90deg, transparent, #007aff, #007aff, #007aff, #007aff, transparent); /* Gradient similar to Apple's blue color */
+    background: linear-gradient(90deg, transparent, #007aff, #007aff, #007aff, #007aff, transparent);
     animation: rotation_481 5000ms infinite linear;
 }
 
