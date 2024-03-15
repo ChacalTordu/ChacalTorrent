@@ -1,5 +1,3 @@
-// logger.js
-
 // Fonction pour obtenir la date et l'heure actuelles au format ISO
 function getCurrentTimestamp() {
     return new Date().toISOString();

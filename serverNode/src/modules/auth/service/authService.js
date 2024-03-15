@@ -1,5 +1,3 @@
-// authService.js
-
 const User = require('../models/userModel');
 const jwt = require('jsonwebtoken');
 const { secretKey } = require('../config'); // You should define your secret key in a separate config file
