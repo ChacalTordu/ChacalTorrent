@@ -27,11 +27,14 @@ coverage
 *.sln
 *.sw?
 
+
 *.tsbuildinfo
 
 torrentFiles/
-ChacalWebInterface/serverBack/uploadsJSON/*
-ChacalWebInterface/serverBack/uploadsTorrent/*
+ChacalWebInterface/.vite/
+ChacalWebInterface/.vscode/
+uploadsJSON/
+uploadsTorrent/
 
 config/
 
