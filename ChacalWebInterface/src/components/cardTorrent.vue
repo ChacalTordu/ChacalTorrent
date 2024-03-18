@@ -276,7 +276,6 @@ p{
 }
 
 .back {
-    background-color: rgba(0, 0, 0, 0.699);
     position: absolute;
     width: 100%;
     height: 100%;
@@ -291,13 +290,16 @@ p{
 }
 
 .backContent {
-    position: relative;
-    z-index: 2;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    gap: 10px;
+  background-color: rgba(161, 161, 161, 0.582);
+  border-radius: 20px;
+  padding: 10px;
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
 }
 
 img {
