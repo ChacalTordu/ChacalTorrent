@@ -1,15 +1,12 @@
 const WebSocket = require('ws');
 
-// Fonction de création et gestion du serveur WebSocket
-const startWebSocketServer = () => {
+function startWebSocketServer() {
   const wss = new WebSocket.Server({ port: 8080 });
-  console.log(`WebSocket server listening on port ${port}`);
-  
-  // Gestion des connexions WebSocket
+  console.log(`WebSocket server listening on ${wss.address().port} ...`);
+
   wss.on('connection', (ws) => {
-    console.log('Client connected to WebSocket server');
-    
-    // Écoute des messages envoyés par le client
+    console.log('Client connected on WebSocket server');
+
     ws.on('message', (message) => {
       console.log("Message received : ", message)
       wss.clients.forEach(client => {
@@ -19,6 +16,6 @@ const startWebSocketServer = () => {
       });
     });
   });
-};
+}
 
 module.exports = { startWebSocketServer };
