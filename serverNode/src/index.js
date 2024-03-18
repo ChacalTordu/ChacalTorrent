@@ -1,17 +1,17 @@
-const express = require('express');
-const cors = require('cors');
-const httpHandler = require('./modules/httpHandler');
-const websocketServer = require('./modules/websocketServer');
+import express, { json, urlencoded } from 'express';
+import cors from 'cors';
+import { startHTTPServer } from './modules/httpHandler';
+import { startWebSocketServer } from './modules/websocketServer';
 
 const app = express();
 
 app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(json());
+app.use(urlencoded({ extended: true }));
 
-httpHandler.startHTTPServer(app);
+startHTTPServer(app);
 
-websocketServer.startWebSocketServer();
+startWebSocketServer();
 
 const PORT = process.env.PORT || 3000;
 
