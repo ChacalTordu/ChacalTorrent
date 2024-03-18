@@ -36,6 +36,7 @@ def loadPaths(jsonFile):
 
     Args:
         jsonFile (str): Chemin vers le fichier JSON contenant les chemins.
+        configFile (str): Chemin vers le fichier config.json.
 
     Returns:
         tuple: Un tuple contenant les chemins (pathSourceDirJson, pathSourceDirTorrent, newDirMedia, pathInputDirDeluge, pathOutputDirDeluge, pathNewDirMedia, error)
@@ -51,13 +52,12 @@ def loadPaths(jsonFile):
                 data = json.load(f)
             
             if data is not None:
-                pathSourceDirJson = data.get('path_sourceDirJson')
-                pathSourceDirTorrent = data.get('path_sourceDirTorrent')
-                pathInputDirDeluge = data.get('path_inputDirDeluge')
-                pathOutputDirDeluge = data.get('path_outputDirDeluge')
-                pathNewDirMedia = data.get('path_mediaDir')
+                pathSourceDirJson = os.path.join(os.path.dirname(jsonFile), data.get('path_sourceDirJson'))
+                pathSourceDirTorrent = os.path.join(os.path.dirname(jsonFile), data.get('path_sourceDirTorrent'))
+                pathInputDirDeluge = os.path.join(os.path.dirname(jsonFile), data.get('path_inputDirDeluge'))
+                pathOutputDirDeluge = os.path.join(os.path.dirname(jsonFile), data.get('path_outputDirDeluge'))
+                pathNewDirMedia = os.path.join(os.path.dirname(jsonFile), data.get('path_mediaDir'))
 
-                # Créer le dossier s'il n'existe pas
                 if pathNewDirMedia and not os.path.exists(pathNewDirMedia):
                     os.makedirs(pathNewDirMedia)
 
