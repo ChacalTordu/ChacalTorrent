@@ -30,18 +30,18 @@ coverage
 
 *.tsbuildinfo
 
-torrentFiles/
+
 ChacalWebInterface/.vite/
 ChacalWebInterface/.vscode/
+ChacalWebInterface/torrentFiles/
+
 uploadsJSON/
 uploadsTorrent/
 
 config/
 
-inputDirTorrentDownloader/*
-outputDirTorrentDownloader/*
+inputDirTorrentDownloader/
+outputDirTorrentDownloader/
 
 ChacalFileManagement/fileManagement.log
-ChacalFileManagement/__pycache__/*
-ChacalFileManagement/media/
-ChacalFileManagement/config/*
+ChacalFileManagement/__pycache__/

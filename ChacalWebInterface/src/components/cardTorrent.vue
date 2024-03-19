@@ -210,7 +210,7 @@
 <style scoped>
 p{
   color: var(--text-color-light);
-  font-size: 24px;
+  font-size: 18px;
 }
 
 .cardTorrent {
@@ -290,7 +290,7 @@ p{
 }
 
 .backContent {
-  background-color: rgba(161, 161, 161, 0.582);
+  background-color: rgba(0, 0, 0, 0.87);
   border-radius: 20px;
   padding: 10px;
   position: relative;
@@ -300,12 +300,12 @@ p{
   justify-content: center;
   align-items: center;
   gap: 10px;
+  width: 80%;
 }
 
 img {
     width: 100%;
     height: 100%;
-    filter: blur(6px);
     position: absolute;
     object-fit: cover;
     top: 0;
