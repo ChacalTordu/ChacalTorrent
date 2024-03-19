@@ -20,7 +20,7 @@ RUN pip install -r requirements.txt --break-system-packages
 
 # Installer les dépendances Node.js si un package-lock.json ou un fichier package.json est présent dans le serverNode
 WORKDIR /ChacalTorrent/serverNode
-RUN npm install --prefix serverNode
+RUN npm install
 
 # Exposer les ports
 EXPOSE 3000
