@@ -18,6 +18,10 @@ RUN npm install && npm run build
 WORKDIR /ChacalTorrent/ChacalFileManagement
 RUN pip install -r requirements.txt --break-system-packages
 
+# Installer les dépendances Node.js si un package-lock.json ou un fichier package.json est présent
+WORKDIR /ChacalTorrent/serverNode
+RUN npm install --prefix serverNode &&
+
 EXPOSE 3000
 EXPOSE 1998
 EXPOSE 8080
