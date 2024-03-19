@@ -145,7 +145,9 @@ def fileSortingMain(path_outputDirDeluge, path_newDirMedia, file_json, file_list
         nameMediaDownloaded, path_newDir = checkMatchingFiles(path_newDirMedia, path_outputDirDeluge, file_listNameFileSought)          # Check matching newmedia depends on seekNameMedia
         if path_newDir is not None:
             # print(f"Fichier téléchargé\nPath source: {path_newDir}\nPath Target: {getFinalPath(path_newDir)}")
-            shutil.move(path_newDir,getFinalPath(path_newDir))                                                                          # Move the final folder into the good one                                                                                  
+            finalPath = getFinalPath(path_newDir)
+            shutil.move(path_newDir,finalPath)                                                                                          # Move the final folder into the good one                                                                                  
+            path_newDir = None
         return nameMediaDownloaded
     except (ValueError, FileNotFoundError) as e:
         raise ValueError(f"{str(e)}")
