@@ -15,9 +15,9 @@
           <div v-if="bool_flagStep1"><p>Sends data to current server ... (1/2)</p></div>
           <div v-if="bool_flagStep2"><p>Download torrent in progress ... (2/2)</p></div>
           <div v-if="bool_flagStep3"><p>Torrent {{ nameMediaCard }} download successfully !</p></div>
-          <div><Spinner v-if="bool_downloading"/></div>
-          <div><Error v-if="bool_downloadError"/></div>
-          <div><Success v-if="bool_downloadSuceed"/></div>
+          <div v-if="bool_downloading"><Spinner/></div>
+          <div v-if="bool_downloadError"><Error/></div>
+          <div v-if="bool_downloadSuceed"><Success/></div>
         </div>
       </div>
     </div>
