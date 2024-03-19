@@ -16,5 +16,5 @@ websocketServer.startWebSocketServer();
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
-  console.log(`http post listening on ${PORT} ...`);
+  console.log(`Http post listening on ${PORT} ...`);
 });
