@@ -90,7 +90,7 @@ if __name__ == "__main__":
             error,
         ) = common.loadPaths(os.path.join(os.path.dirname(__file__), "../config", "config.json"))
         if error:
-            logger.error(f"Une erreur s'est produite lors du chargement des chemins dans le fichier path.json dans le dossier config/ : {error}")
+            logger.error(f"[ERR] : {error}")
         else:
             logger.info("Chargement des chemins réalisé avec succès")  # Utilisation du logger pour enregistrer les informations
 
@@ -113,6 +113,6 @@ if __name__ == "__main__":
             sortingProcess.join()
                 
     except Exception as e:
-        logger.error(f"Une erreur s'est produite dans le main.py: {str(e)}")  # Utilisation du logger pour enregistrer les erreurs
+        logger.error(f"[ERR]: {str(e)}")
         print(f"Une erreur s'est produite dans le main.py: {str(e)}")
 

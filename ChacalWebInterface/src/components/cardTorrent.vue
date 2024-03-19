@@ -10,11 +10,11 @@
           </div>
       </div>
       <div v-if="bool_isFlipped" class="back">
+        <img :src="movieData.poster_path ? 'https://image.tmdb.org/t/p/w500/' + movieData.poster_path : ''">
         <div class="backContent">
-          <!-- <mediaPoster /> -->
-          <div v-if="bool_flagStep1">Sends data to current server ... (1/2)</div>
-          <div v-if="bool_flagStep2">Download torrent in progress ... (2/2)</div>
-          <div v-if="bool_flagStep3">Torrent {{ nameMediaCard }} download successfully !</div>
+          <div v-if="bool_flagStep1"><p>Sends data to current server ... (1/2)</p></div>
+          <div v-if="bool_flagStep2"><p>Download torrent in progress ... (2/2)</p></div>
+          <div v-if="bool_flagStep3"><p>Torrent {{ nameMediaCard }} download successfully !</p></div>
           <div><Spinner v-if="bool_downloading"/></div>
           <div><Error v-if="bool_downloadError"/></div>
           <div><Success v-if="bool_downloadSuceed"/></div>
@@ -24,8 +24,7 @@
   </div>
 </template>
 
-  
-  <script setup>
+<script setup>
     import { ref, watch } from 'vue';
     import axios from 'axios'
 
@@ -36,7 +35,11 @@
     import Spinner from './animation/Spinner.vue';
     import Error from './animation/Error.vue';
     import Success from './animation/Success.vue';
-    import mediaPoster from './mediaPoster.vue';
+
+    import config from '@/../../config/config.json';
+  
+    const movieData = ref('');
+    const apiKey = config.apiKey_tmdb;
 
     var jsonMediaInfos
     
@@ -91,6 +94,7 @@
 
     function handleConfirmClicked() {
       // Verification des données - Création du json associés au infos - Envoie des données au serveur
+
       if(validateMediaInfo(let_newMediaInfo)){
         if(validateTorrent()){
           if(formattingJsonFile()){
@@ -99,7 +103,7 @@
             if(sendDataToServer()){ 
               bool_downloading.value = true;
               bool_flagStep1.value = true;
-              // mediaPoster.searchMovie(let_newMediaInfo.string_title);
+              searchMovie(let_newMediaInfo.string_title);
             }else{bool_flagErrorMessage.value = true}
           }else{bool_flagErrorMessage.value = true;return}
         }else{bool_flagErrorMessage.value = true;return}
@@ -170,13 +174,12 @@
     // Send JSON and torrent file to server
     async function sendDataToServer() {
       try {
-        await axios.post('http://localhost:3000/uploadFile', formData_formData);
+        const responseTorrent = await axios.post('http://localhost:3000/uploadFile', formData_formData);
         console.log('Envoie du Torrent au serveur ...');
         const responseJSON = await axios.post('http://localhost:3000/uploadJSON', jsonMediaInfos);
-        // await axios.post('http://localhost:3000/uploadJSON', jsonMediaInfos);
         console.log('Envoie des informations au serveur ...');
-        if (responseJSON.status === 200) {
-          console.log('Le serveur a confirmé la réception des données JSON.');
+        if ((responseJSON.status === 200)&&(responseTorrent.status === 200)) {
+          console.log('Le serveur a confirmé la réception des données JSON et Torrent');
           bool_flagStep1.value = false;
           bool_flagStep2.value = true;
         } else {
@@ -191,14 +194,30 @@
         return false
       }
     }
-  </script>
+
+    async function searchMovie(title) {
+      try {
+          const response = await axios.get(`https://api.themoviedb.org/3/search/movie?api_key=${apiKey}&query=${title}`);
+          if (response.data.results.length > 0) {
+              movieData.value = response.data.results[0];
+          }
+      } catch (error) {
+          console.error('Erreur lors de la recherche du film :', error);
+      }
+  };
+</script>
   
-  <style scoped>
+<style scoped>
+p{
+  color: var(--text-color-light);
+  font-size: 24px;
+}
+
 .cardTorrent {
     width: 400px;
     height: 520px;
     perspective: 1000px;
-    background-color: #f4f4f4; /* Background color similar to Apple's light gray */
+    background-color: #f4f4f4;
 }
 
 .content {
@@ -239,7 +258,7 @@
     display: block;
     width: 160px;
     height: 160%;
-    background: linear-gradient(90deg, transparent, #007aff, #007aff, #007aff, #007aff, transparent); /* Gradient similar to Apple's blue color */
+    background: linear-gradient(90deg, transparent, #007aff, #007aff, #007aff, #007aff, transparent);
     animation: rotation_481 5000ms infinite linear;
 }
 
@@ -257,7 +276,6 @@
 }
 
 .back {
-    background-color: #ffffff;
     position: absolute;
     width: 100%;
     height: 100%;
@@ -268,17 +286,31 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    transform: rotateY(180deg); /* Ajout de la transformation pour la face arrière */
+    transform: rotateY(180deg);
 }
 
 .backContent {
+  background-color: rgba(161, 161, 161, 0.582);
+  border-radius: 20px;
+  padding: 10px;
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+
+img {
+    width: 100%;
+    height: 100%;
+    filter: blur(6px);
     position: absolute;
-    z-index: 2;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    gap: 10px;
+    object-fit: cover;
+    top: 0;
+    left: 0;
+    z-index: -1;
 }
 
 .buttonDownload {
