@@ -1,2 +1,2 @@
 shutils
-websocket-client==1.2.1
+websocket-client
