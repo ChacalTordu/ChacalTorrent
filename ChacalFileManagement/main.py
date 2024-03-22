@@ -2,6 +2,7 @@ import os
 import signal
 import multiprocessing
 import websocket
+import time
 
 from logger_config import logger
 import common
@@ -58,21 +59,42 @@ def sortFiles(pathOutputDirDeluge, pathNewDirMedia, queueJson):
     """
     print("Process sortFiles() is running ...")
     file_listNameFileSought = initSortFiles(pathNewDirMedia)
-    ws = websocket.create_connection("ws://localhost:8080")
+    
     while True:
         try:
-            try :
-                fileJson = queueJson.get_nowait()
-            except :
-                fileJson = None
-            nameMediaDownloaded = fileSorting.fileSortingMain(pathOutputDirDeluge, pathNewDirMedia, fileJson, file_listNameFileSought)
-            if nameMediaDownloaded is not None:
-                ws.send(nameMediaDownloaded)
-                logger.info(f"[OK] : Fichier {nameMediaDownloaded} téléchargé et trié avec succès")
-        except ValueError as e:
-            logger.error(f"[ERR] : Value Error {str(e)}")
+            # Tentative de connexion au websocket
+            # print("Attempting to connect to websocket client ...")
+            ws = websocket.create_connection("ws://localhost:8080")
+            # print("Websocket client connected !")
+            
+            # Boucle principale
+            while ws.connected:
+                try:
+                    # Obtention d'un élément de la file JSON
+                    try:
+                        fileJson = queueJson.get_nowait()
+                    except:
+                        fileJson = None
+                    
+                    # Tri des fichiers
+                    nameMediaDownloaded = fileSorting.fileSortingMain(pathOutputDirDeluge, pathNewDirMedia, fileJson, file_listNameFileSought)
+                    if nameMediaDownloaded is not None:
+                        # Envoi du fichier trié via le websocket
+                        ws.send(nameMediaDownloaded)
+                        logger.info(f"[OK] : Fichier {nameMediaDownloaded} téléchargé et trié avec succès")
+                        
+                except ValueError as e:
+                    logger.error(f"[ERR] : Value Error {str(e)}")
+                except Exception as e:
+                    logger.error(f"[ERR] : Sortfiles error : {str(e)}")
+
+        except ConnectionRefusedError as e:
+            logger.error(f"[ERR] : Websocket connection refused. Check that the websocket server is running")
+            time.sleep(4)
+            
         except Exception as e:
-            logger.error(f"[ERR] : Une erreur s'est produite lors du tri des fichiers : {str(e)}")
+            logger.error(f"[ERR] : {str(e)}")
+            break
 
 def signalHandler(sig, frame):
     logger.info('[INFOS] : Exit ...')
