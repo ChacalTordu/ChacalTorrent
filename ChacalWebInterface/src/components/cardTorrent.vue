@@ -210,7 +210,8 @@
 <style scoped>
 p{
   color: var(--text-color-light);
-  font-size: 18px;
+  font-size: 16px;
+  text-align: center;
 }
 
 .cardTorrent {
