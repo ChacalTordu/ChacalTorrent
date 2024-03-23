@@ -11,7 +11,7 @@
 import { ref } from "vue";
 import cardTorrent from "./components/cardTorrent.vue";
 
-const socket = new WebSocket('ws://localhost:8080');
+const socket = new WebSocket('ws://' + window.location.hostname + ':8080');
 const componentList = ref([]);
 
 componentList.value.push({ media: '', bool_mediaDownload: false });
