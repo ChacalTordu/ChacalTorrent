@@ -174,11 +174,11 @@
     // Send JSON and torrent file to server
     async function sendDataToServer() {
       try {
-        const responseTorrent = await axios.post('http://localhost:3000/uploadFile', formData_formData);
-        console.log('Envoie du Torrent au serveur ...');
-        const responseJSON = await axios.post('http://localhost:3000/uploadJSON', jsonMediaInfos);
-        console.log('Envoie des informations au serveur ...');
-        if ((responseJSON.status === 200)&&(responseTorrent.status === 200)) {
+        const responseTorrent = await axios.post(`${window.location.origin}/uploadFile`, formData_formData);
+        console.log('Envoi du Torrent au serveur ...');
+        const responseJSON = await axios.post(`${window.location.origin}/uploadJSON`, jsonMediaInfos);
+        console.log('Envoi des informations au serveur ...');
+        if ((responseJSON.status === 200) && (responseTorrent.status === 200)) {
           console.log('Le serveur a confirmé la réception des données JSON et Torrent');
           bool_flagStep1.value = false;
           bool_flagStep2.value = true;
@@ -186,14 +186,15 @@
           console.error('Réponse inattendue du serveur lors de l\'envoi des données JSON:', responseJSON.data);
           bool_downloadError.value = true;
         }
-        return true
+        return true;
       } catch (error) {
         bool_downloading.value = false;
         bool_downloadError.value = true;
         console.error('Une erreur est survenue lors de l\'envoi des données au serveur:', error.message);
-        return false
+        return false;
       }
     }
+
 
     async function searchMovie(title) {
       try {
