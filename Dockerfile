@@ -12,7 +12,7 @@ COPY . .
 
 # Installer les dépendances Node.js si un package-lock.json ou un fichier package.json est présent
 WORKDIR /ChacalTorrent/ChacalWebInterface
-RUN npm install && npm run build
+RUN npm install && npm install -g serve && npm run build
 
 # Installer les dépendances Python
 WORKDIR /ChacalTorrent/ChacalFileManagement

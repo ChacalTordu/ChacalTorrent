@@ -174,9 +174,9 @@
     // Send JSON and torrent file to server
     async function sendDataToServer() {
       try {
-        const responseTorrent = await axios.post("/uploadFile", formData_formData);
+        const responseTorrent = await axios.post("http://localhost:3000/uploadFile", formData_formData);
         console.log('Envoi du Torrent au serveur ...');
-        const responseJSON = await axios.post("/uploadJSON", jsonMediaInfos);
+        const responseJSON = await axios.post("http://localhost:3000/uploadJSON", jsonMediaInfos);
         console.log('Envoi des informations au serveur ...');
         if ((responseJSON.status === 200) && (responseTorrent.status === 200)) {
           console.log('Le serveur a confirmé la réception des données JSON et Torrent');
